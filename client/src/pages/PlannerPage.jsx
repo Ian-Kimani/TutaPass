@@ -14,7 +14,7 @@ import { formatDate } from '../utils/formatters';
 import apiService from '../services/api.service';
 
 export default function PlannerPage() {
-  const { dashboardData, refreshDashboard, showToast } = useApp();
+  const { dashboardData, refreshDashboard, showToast, activeSyllabus } = useApp();
   const rawPlan = dashboardData?.studyPlan;
   const domains = dashboardData?.readiness?.domains || [];
 
@@ -74,12 +74,13 @@ export default function PlannerPage() {
     try {
       setGenerating(true);
       await apiService.saveStudyPlan({
+        syllabusId: activeSyllabus?.id || null,
         targetExamDate,
         dailyHours: parseFloat(dailyHours),
         weakAreas: selectedWeakAreas,
       });
       await refreshDashboard();
-      showToast('Personalized AZ-900 roadmap generated with Gemini!', 'success');
+      showToast(`Personalized roadmap generated for ${activeSyllabus?.code || 'your exam'}!`, 'success');
     } catch (err) {
       showToast(`Plan generation failed: ${err.message}`, 'error');
     } finally {

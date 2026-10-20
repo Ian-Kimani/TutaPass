@@ -25,6 +25,7 @@ export default function QuizArenaPage() {
     languageMode,
     setLanguageMode,
     showToast,
+    activeSyllabus,
   } = useApp();
 
   const domains = dashboardData?.readiness?.domains || [];
@@ -43,11 +44,12 @@ export default function QuizArenaPage() {
   // Generate more questions state
   const [generating, setGenerating] = useState(false);
 
-  // Load questions based on selected domain
+  // Load questions based on selected syllabus and domain
   const loadQuestions = async () => {
     try {
       setLoadingQuestions(true);
-      const data = await apiService.getQuizQuestions(selectedQuizDomainId, 15);
+      const sylId = activeSyllabus?.id || null;
+      const data = await apiService.getQuizQuestions(sylId, selectedQuizDomainId, 25);
       setQuestions(data || []);
       setCurrentIndex(0);
       setActiveAutopsyOptionId(null);
@@ -60,7 +62,7 @@ export default function QuizArenaPage() {
 
   useEffect(() => {
     loadQuestions();
-  }, [selectedQuizDomainId]);
+  }, [activeSyllabus?.id, selectedQuizDomainId]);
 
   const currentQ = questions[currentIndex] || null;
   const currentAttempt = currentQ ? attemptState[currentQ.id] : null;
@@ -147,7 +149,7 @@ export default function QuizArenaPage() {
                 : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
             }`}
           >
-            All AZ-900 Domains ({questions.length})
+            All {activeSyllabus?.code || 'Exam'} Topics ({questions.length})
           </button>
           {domains.map((d) => (
             <button

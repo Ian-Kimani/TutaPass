@@ -31,8 +31,12 @@ export const apiService = {
   },
 
   // Dashboard & Plan
-  getDashboard: async (userId = 'demo-learner') => {
-    const res = await apiClient.get(`/dashboard?userId=${userId}`);
+  getDashboard: async (userId = 'demo-learner', syllabusId = null) => {
+    let endpoint = `/dashboard?userId=${userId}`;
+    if (syllabusId) {
+      endpoint += `&syllabusId=${syllabusId}`;
+    }
+    const res = await apiClient.get(endpoint);
     return handleResponse(res);
   },
 
@@ -47,9 +51,12 @@ export const apiService = {
   },
 
   // Quiz Arena
-  getQuizQuestions: async (domainId = null, limit = 10) => {
-    const endpoint = domainId ? `/quiz?domainId=${domainId}&limit=${limit}` : `/quiz?limit=${limit}`;
-    const res = await apiClient.get(endpoint);
+  getQuizQuestions: async (syllabusId = null, domainId = null, limit = 20) => {
+    const params = new URLSearchParams();
+    if (syllabusId) params.append('syllabusId', syllabusId);
+    if (domainId) params.append('domainId', domainId);
+    params.append('limit', limit);
+    const res = await apiClient.get(`/quiz?${params.toString()}`);
     return handleResponse(res);
   },
 

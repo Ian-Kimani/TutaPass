@@ -6,31 +6,39 @@ const { sendSuccess, sendError } = require('../utils/apiResponse');
 
 /**
  * Returns composite dashboard data: Pass Probability, Domain Mastery Bars, and current Study Plan.
+ * Dynamically filtered by syllabusId (or flagship if null).
  */
 const getDashboardData = asyncHandler(async (req, res) => {
   const userId = req.query.userId || 'demo-learner';
+  const syllabusId = req.query.syllabusId ? parseInt(req.query.syllabusId, 10) : null;
 
-  // 1. Calculate readiness telemetry
-  const readiness = await readinessService.calculateReadiness(db, userId);
+  // 1. Calculate readiness telemetry for requested syllabus
+  const readiness = await readinessService.calculateReadiness(db, userId, syllabusId);
 
-  // 2. Fetch active study plan
+  // 2. Fetch active syllabus
+  let syllabusRes;
+  if (syllabusId) {
+    syllabusRes = await db.query('SELECT * FROM syllabi WHERE id = $1 LIMIT 1;', [syllabusId]);
+  } else {
+    syllabusRes = await db.query('SELECT * FROM syllabi WHERE is_flagship = true LIMIT 1;');
+  }
+  const activeSyllabus = syllabusRes.rows[0] || null;
+  const resolvedSyllabusId = activeSyllabus?.id || null;
+
+  // 3. Fetch active study plan
   const planRes = await db.query(
     `SELECT * FROM study_plans 
-     WHERE user_id = $1 
+     WHERE user_id = $1 AND ($2::int IS NULL OR syllabus_id = $2)
      ORDER BY created_at DESC 
      LIMIT 1;`,
-    [userId]
-  );
-
-  // 3. Fetch active flagship syllabus
-  const syllabusRes = await db.query(
-    `SELECT * FROM syllabi WHERE is_flagship = true LIMIT 1;`
+    [userId, resolvedSyllabusId]
   );
 
   return sendSuccess(res, {
     readiness,
     studyPlan: planRes.rows[0] || null,
-    flagshipSyllabus: syllabusRes.rows[0] || null,
+    flagshipSyllabus: activeSyllabus,
+    syllabus: activeSyllabus,
   });
 });
 
@@ -39,16 +47,20 @@ const getDashboardData = asyncHandler(async (req, res) => {
  */
 const createOrUpdatePlan = asyncHandler(async (req, res) => {
   const userId = req.body.userId || 'demo-learner';
+  const syllabusId = req.body.syllabusId ? parseInt(req.body.syllabusId, 10) : null;
   const { targetExamDate, dailyHours, weakAreas = [] } = req.body;
 
-  // Retrieve flagship syllabus ID
-  const syllabusRes = await db.query(
-    'SELECT id, title FROM syllabi WHERE is_flagship = true LIMIT 1;'
-  );
+  // Retrieve requested syllabus or fallback to flagship
+  let syllabusRes;
+  if (syllabusId) {
+    syllabusRes = await db.query('SELECT id, title FROM syllabi WHERE id = $1 LIMIT 1;', [syllabusId]);
+  } else {
+    syllabusRes = await db.query('SELECT id, title FROM syllabi WHERE is_flagship = true LIMIT 1;');
+  }
   const syllabus = syllabusRes.rows[0];
 
   if (!syllabus) {
-    return sendError(res, 'Flagship syllabus not found in database.', 404);
+    return sendError(res, 'Syllabus not found in database.', 404);
   }
 
   // Generate study plan with Gemini

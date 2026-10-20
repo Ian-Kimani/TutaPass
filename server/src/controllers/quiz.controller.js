@@ -7,9 +7,10 @@ const { sendSuccess, sendError } = require('../utils/apiResponse');
 
 /**
  * Fetch scenario quiz questions with Distractor Autopsies.
+ * Filters dynamically by syllabusId and/or domainId.
  */
 const getQuestions = asyncHandler(async (req, res) => {
-  const { domainId, limit = 10 } = req.query;
+  const { syllabusId, domainId, limit = 20 } = req.query;
 
   let query = `
     SELECT 
@@ -21,19 +22,31 @@ const getQuestions = asyncHandler(async (req, res) => {
       qq.options,
       qq.context_translations,
       qq.difficulty,
-      d.name AS domain_name
+      d.name AS domain_name,
+      d.syllabus_id
     FROM quiz_questions qq
     JOIN domains d ON qq.domain_id = d.id
   `;
 
+  const whereClauses = [];
   const params = [];
-  if (domainId) {
-    query += ` WHERE qq.domain_id = $1`;
-    params.push(parseInt(domainId, 10));
+
+  if (syllabusId) {
+    params.push(parseInt(syllabusId, 10));
+    whereClauses.push(`d.syllabus_id = $${params.length}`);
   }
 
-  query += ` ORDER BY qq.id ASC LIMIT $${params.length + 1};`;
-  params.push(parseInt(limit, 10));
+  if (domainId) {
+    params.push(parseInt(domainId, 10));
+    whereClauses.push(`qq.domain_id = $${params.length}`);
+  }
+
+  if (whereClauses.length > 0) {
+    query += ` WHERE ` + whereClauses.join(' AND ');
+  }
+
+  params.push(parseInt(limit, 10) || 20);
+  query += ` ORDER BY qq.id ASC LIMIT $${params.length};`;
 
   const { rows } = await db.query(query, params);
 
@@ -94,8 +107,10 @@ const submitAttempt = asyncHandler(async (req, res) => {
     });
   }
 
-  // 4. Calculate newly updated overall readiness score
-  const updatedReadiness = await readinessService.calculateReadiness(db, userId);
+  // 4. Calculate newly updated overall readiness score for this question's syllabus
+  const domainRes = await db.query('SELECT syllabus_id FROM domains WHERE id = $1', [question.domain_id]);
+  const syllabusId = domainRes.rows[0]?.syllabus_id || null;
+  const updatedReadiness = await readinessService.calculateReadiness(db, userId, syllabusId);
 
   return sendSuccess(res, {
     isCorrect,

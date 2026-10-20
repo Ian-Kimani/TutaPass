@@ -69,24 +69,32 @@ Output strictly valid JSON with no markdown wrapping.`,
     }
   }, []);
 
-  // Fetch Dashboard Telemetry
-  const refreshDashboard = useCallback(async () => {
+  // Fetch Dashboard Telemetry scoped to active syllabus
+  const refreshDashboard = useCallback(async (targetSyllabusId = null) => {
     try {
       setLoadingDashboard(true);
-      const data = await apiService.getDashboard('demo-learner');
+      const sylId = targetSyllabusId !== null ? targetSyllabusId : (activeSyllabus?.id || null);
+      const data = await apiService.getDashboard('demo-learner', sylId);
       setDashboardData(data);
     } catch (err) {
       console.warn('Could not load dashboard data:', err.message);
     } finally {
       setLoadingDashboard(false);
     }
-  }, []);
+  }, [activeSyllabus?.id]);
 
   // Initial Load
   useEffect(() => {
     loadSyllabi();
-    refreshDashboard();
-  }, [loadSyllabi, refreshDashboard]);
+  }, [loadSyllabi]);
+
+  // Reload dashboard whenever active exam changes
+  useEffect(() => {
+    if (activeSyllabus?.id) {
+      refreshDashboard(activeSyllabus.id);
+      setSelectedQuizDomainId(null);
+    }
+  }, [activeSyllabus?.id]);
 
   // Demo Reset Handler
   const handleResetDemo = async () => {

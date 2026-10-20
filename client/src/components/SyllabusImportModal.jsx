@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, UploadCloud, Sparkles, FileText, CheckCircle2 } from 'lucide-react';
+import { X, UploadCloud, Sparkles } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import apiService from '../services/api.service';
 
@@ -23,6 +23,39 @@ Domain 4: Billing, Pricing, and Support (12% of examination)
 - Compare AWS pricing models (On-Demand, Reserved Instances)
 - Understand billing tools and cost allocation tags`;
 
+const SAMPLE_KCSE_SYLLABUS = `KCSE Mathematics Alternative A
+Domain 1: Calculus and Differentiation (30% of syllabus)
+- First principles of differentiation and gradient of a curve
+- Derivatives of polynomials and equations of tangents and normals
+- Turning points, maxima, minima, and curve sketching
+
+Domain 2: Matrices and Transformations (35% of syllabus)
+- 2x2 matrix operations, determinants, and singular matrices
+- Inverse matrices and solving simultaneous linear equations
+- Matrix transformations including reflection, rotation, shear, and enlargement
+
+Domain 3: Probability and Statistics (35% of syllabus)
+- Mutually exclusive, independent events and tree diagrams
+- Mean, variance, and standard deviation for grouped frequency distributions
+- Normal distribution principles and probability calculations`;
+
+const SAMPLE_SECURITY_PLUS_SYLLABUS = `CompTIA Security+ (SY0-701)
+Domain 1: General Security Concepts (12% of examination)
+- Compare and contrast security controls and defense-in-depth principles
+- Explain fundamental cryptographic concepts (hashing, symmetric/asymmetric encryption)
+
+Domain 2: Threats, Vulnerabilities, and Mitigations (22% of examination)
+- Analyze common threat actor types, motivation, and vectors (phishing, social engineering)
+- Differentiate between malware types, ransomware, and rootkits
+
+Domain 3: Security Architecture and Operations (36% of examination)
+- Compare and contrast security implications of architecture models (cloud, hybrid, zero trust)
+- Apply network security appliances (firewalls, IDS/IPS, proxies)
+
+Domain 4: Security Program Management and Oversight (30% of examination)
+- Explain risk management processes, business impact analysis, and compliance policies
+- Implement incident response procedures, digital forensics, and reporting`;
+
 export default function SyllabusImportModal() {
   const { isImportModalOpen, setIsImportModalOpen, setActiveSyllabus, setSyllabi, showToast } = useApp();
   const [title, setTitle] = useState('');
@@ -32,9 +65,21 @@ export default function SyllabusImportModal() {
 
   if (!isImportModalOpen) return null;
 
-  const handlePreloadSample = () => {
+  const handlePreloadAws = () => {
     setTitle('AWS Certified Cloud Practitioner (CLF-C02)');
     setRawText(SAMPLE_AWS_SYLLABUS);
+    setError(null);
+  };
+
+  const handlePreloadKcse = () => {
+    setTitle('KCSE Mathematics Alternative A');
+    setRawText(SAMPLE_KCSE_SYLLABUS);
+    setError(null);
+  };
+
+  const handlePreloadSecurityPlus = () => {
+    setTitle('CompTIA Security+ (SY0-701)');
+    setRawText(SAMPLE_SECURITY_PLUS_SYLLABUS);
     setError(null);
   };
 
@@ -55,7 +100,7 @@ export default function SyllabusImportModal() {
         const updatedList = await apiService.getSyllabi();
         setSyllabi(updatedList);
         setActiveSyllabus(res.syllabus);
-        showToast(`Successfully imported "${res.syllabus.title}"!`, 'success');
+        showToast(`Successfully imported "${res.syllabus.title}" with starter questions!`, 'success');
         setIsImportModalOpen(false);
       }
     } catch (err) {
@@ -110,7 +155,7 @@ export default function SyllabusImportModal() {
               </label>
               <input
                 type="text"
-                placeholder="e.g., AWS Cloud Practitioner, CompTIA Security+, KCSE"
+                placeholder="e.g., AWS Cloud Practitioner, CompTIA Security+, KCSE Math"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-indigo-500 transition"
@@ -118,18 +163,35 @@ export default function SyllabusImportModal() {
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1.5">
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Raw Syllabus Text or Topics Outline
                 </label>
-                <button
-                  type="button"
-                  onClick={handlePreloadSample}
-                  className="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1 transition"
-                >
-                  <Sparkles className="h-3 w-3" />
-                  Load AWS Sample
-                </button>
+                {/* 1-Click Samples */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] text-slate-500 font-medium">1-Click:</span>
+                  <button
+                    type="button"
+                    onClick={handlePreloadAws}
+                    className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-slate-700 font-medium transition"
+                  >
+                    AWS Sample
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePreloadKcse}
+                    className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700 font-medium transition"
+                  >
+                    KCSE Math
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePreloadSecurityPlus}
+                    className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 font-medium transition"
+                  >
+                    CompTIA Sec+
+                  </button>
+                </div>
               </div>
               <textarea
                 rows={7}
@@ -142,7 +204,7 @@ export default function SyllabusImportModal() {
 
             {/* AI Parsing Explanation */}
             <div className="p-3 rounded-xl bg-slate-800/40 border border-slate-800 text-[11px] text-slate-400 leading-relaxed">
-              💡 <strong>How it works:</strong> Gemini analyzes the outline, detects weight ranges (totaling ~100%), extracts core topics, and creates a new syllabus track in your PostgreSQL database.
+              💡 <strong>Automatic Quiz Generation:</strong> Gemini analyzes the outline, detects weight percentages, creates your syllabus track, and automatically synthesizes starter scenario questions with Distractor Autopsies!
             </div>
 
             {/* Actions */}
@@ -162,7 +224,7 @@ export default function SyllabusImportModal() {
                 {loading ? (
                   <>
                     <span className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                    <span>Parsing with Gemini...</span>
+                    <span>Parsing & Generating Questions...</span>
                   </>
                 ) : (
                   <>

@@ -30,6 +30,7 @@ export default function DashboardPage() {
     languageMode,
     setLanguageMode,
     showToast,
+    activeSyllabus,
   } = useApp();
 
   // Concept Explainer state
@@ -42,6 +43,11 @@ export default function DashboardPage() {
   const overallScore = readiness?.overallReadiness ?? 64;
   const verdictStyle = getVerdictBadge(overallScore);
 
+  const isFlagship = activeSyllabus?.is_flagship || activeSyllabus?.code === 'AZ-900';
+  const dynamicPresetPills = isFlagship
+    ? PRESET_CONCEPTS
+    : (readiness?.domains?.map((d) => d.name.replace(/^Describe\s+/i, '')) || ['Core Concepts', 'Applied Methods', 'Key Rules']);
+
   const handlePracticeDomain = (domainId) => {
     setSelectedQuizDomainId(domainId);
     setActiveTab(TABS.QUIZ);
@@ -53,7 +59,8 @@ export default function DashboardPage() {
 
     try {
       setExplaining(true);
-      const res = await apiService.explainConcept(term, 'AZ-900 Cloud Fundamentals', languageMode);
+      const topicContext = activeSyllabus?.title || 'AZ-900 Cloud Fundamentals';
+      const res = await apiService.explainConcept(term, topicContext, languageMode);
       setExplanationData(res?.explanation || null);
       showToast(`AI Concept explanation generated for "${term}"!`, 'info');
     } catch (err) {
@@ -85,7 +92,7 @@ export default function DashboardPage() {
                 ● {readiness?.verdict || 'Sharpening Phase'}
               </span>
               <span className="text-xs text-slate-400 font-mono">
-                Official AZ-900 Pass Standard: ~70%
+                {activeSyllabus?.code || 'Exam'} Target Pass Standard: ~70%
               </span>
             </div>
 
@@ -181,7 +188,7 @@ export default function DashboardPage() {
         <div>
           <h2 className="text-lg font-bold text-white">Topic Mastery</h2>
           <p className="text-xs text-slate-400">
-            Official Azure Fundamentals exam domains and your current accuracy
+            Core topics for {activeSyllabus?.title || 'your exam'} and your current accuracy
           </p>
         </div>
 
@@ -301,7 +308,11 @@ export default function DashboardPage() {
                 type="text"
                 value={conceptQuery}
                 onChange={(e) => setConceptQuery(e.target.value)}
-                placeholder="Ask about any cloud term (e.g. CapEx vs OpEx, Availability Zones, Azure Bastion)..."
+                placeholder={
+                  isFlagship
+                    ? 'Ask about any cloud term (e.g. CapEx vs OpEx, Availability Zones, Azure Bastion)...'
+                    : `Ask about any topic in ${activeSyllabus?.title || 'this exam'}...`
+                }
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition"
               />
             </div>
@@ -324,10 +335,10 @@ export default function DashboardPage() {
             </button>
           </form>
 
-          {/* Preset Pills */}
+          {/* Dynamic Preset Pills */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="text-slate-400 text-[11px]">Popular exam topics:</span>
-            {PRESET_CONCEPTS.map((pill) => (
+            {dynamicPresetPills.map((pill) => (
               <button
                 key={pill}
                 type="button"
