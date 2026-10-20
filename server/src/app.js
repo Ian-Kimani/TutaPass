@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const apiRoutes = require('./routes');
 const errorHandler = require('./middleware/errorHandler');
 const { sendSuccess } = require('./utils/apiResponse');
 
@@ -18,6 +19,9 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Mount All Feature REST Routes
+app.use('/api', apiRoutes);
 
 // Global Error Handler
 app.use(errorHandler);
