@@ -10,25 +10,31 @@ const { sendSuccess, sendError } = require('../utils/apiResponse');
  */
 const getDashboardData = asyncHandler(async (req, res) => {
   const userId = req.query.userId || 'demo-learner';
-  const syllabusId = req.query.syllabusId ? parseInt(req.query.syllabusId, 10) : null;
-
-  // 1. Calculate readiness telemetry for requested syllabus
-  const readiness = await readinessService.calculateReadiness(db, userId, syllabusId);
-
-  // 2. Fetch active syllabus
-  let syllabusRes;
-  if (syllabusId) {
-    syllabusRes = await db.query('SELECT * FROM syllabi WHERE id = $1 LIMIT 1;', [syllabusId]);
-  } else {
-    syllabusRes = await db.query('SELECT * FROM syllabi WHERE is_flagship = true LIMIT 1;');
+  let syllabusId = null;
+  if (req.query.syllabusId && req.query.syllabusId !== 'undefined' && req.query.syllabusId !== 'null') {
+    const parsed = parseInt(req.query.syllabusId, 10);
+    if (!isNaN(parsed)) syllabusId = parsed;
   }
-  const activeSyllabus = syllabusRes.rows[0] || null;
-  const resolvedSyllabusId = activeSyllabus?.id || null;
 
-  // 3. Fetch active study plan
+  // 1. Fetch active syllabus (or flagship if not specified / not found)
+  let activeSyllabus = null;
+  if (syllabusId) {
+    const syllabusRes = await db.query('SELECT * FROM syllabi WHERE id = $1 LIMIT 1;', [syllabusId]);
+    activeSyllabus = syllabusRes.rows[0] || null;
+  }
+  if (!activeSyllabus) {
+    const flagshipRes = await db.query('SELECT * FROM syllabi WHERE is_flagship = true LIMIT 1;');
+    activeSyllabus = flagshipRes.rows[0] || null;
+  }
+  const resolvedSyllabusId = activeSyllabus?.id || 1;
+
+  // 2. Calculate readiness telemetry strictly for resolved syllabus
+  const readiness = await readinessService.calculateReadiness(db, userId, resolvedSyllabusId);
+
+  // 3. Fetch active study plan for this syllabus
   const planRes = await db.query(
     `SELECT * FROM study_plans 
-     WHERE user_id = $1 AND ($2::int IS NULL OR syllabus_id = $2)
+     WHERE user_id = $1 AND syllabus_id = $2
      ORDER BY created_at DESC 
      LIMIT 1;`,
     [userId, resolvedSyllabusId]

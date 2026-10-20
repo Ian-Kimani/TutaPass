@@ -108,19 +108,24 @@ export default function QuizArenaPage() {
 
   // Generate more AI questions
   const handleGenerateMore = async () => {
-    const targetDomainId = selectedQuizDomainId || (domains[0]?.id ?? 1);
+    const targetDomain = domains.find((d) => d.id === selectedQuizDomainId) || domains[0];
+    const targetDomainId = targetDomain?.id;
+    if (!targetDomainId) {
+      showToast('No topics available to generate questions for.', 'warning');
+      return;
+    }
     try {
       setGenerating(true);
       const res = await apiService.generateMoreQuestions({
         domainId: targetDomainId,
-        topicTag: 'Azure Architecture & Services',
+        topicTag: targetDomain.name,
         difficulty: 'medium',
         count: 2,
       });
 
       if (res?.questions) {
         setQuestions((prev) => [...prev, ...res.questions]);
-        showToast(`Gemini synthesized ${res.questions.length} new scenario questions!`, 'success');
+        showToast(`Gemini synthesized ${res.questions.length} new questions for ${targetDomain.name}!`, 'success');
       }
     } catch (err) {
       showToast(`Generation failed: ${err.message}`, 'error');

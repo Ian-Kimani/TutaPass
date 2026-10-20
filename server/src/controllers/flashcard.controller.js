@@ -8,8 +8,13 @@ const { sendSuccess, sendError } = require('../utils/apiResponse');
  */
 const getFlashcards = asyncHandler(async (req, res) => {
   const userId = req.query.userId || 'demo-learner';
+  let syllabusId = null;
+  if (req.query.syllabusId && req.query.syllabusId !== 'undefined' && req.query.syllabusId !== 'null') {
+    const parsed = parseInt(req.query.syllabusId, 10);
+    if (!isNaN(parsed)) syllabusId = parsed;
+  }
 
-  const query = `
+  let query = `
     SELECT 
       f.id,
       f.user_id,
@@ -26,8 +31,13 @@ const getFlashcards = asyncHandler(async (req, res) => {
     FROM flashcards f
     JOIN domains d ON f.domain_id = d.id
     WHERE f.user_id = $1
-    ORDER BY f.next_review_at ASC, f.id ASC;
   `;
+  const params = [userId];
+  if (syllabusId) {
+    params.push(syllabusId);
+    query += ` AND d.syllabus_id = $${params.length}`;
+  }
+  query += ` ORDER BY f.next_review_at ASC, f.id ASC;`;
 
   const { rows } = await db.query(query, [userId]);
 

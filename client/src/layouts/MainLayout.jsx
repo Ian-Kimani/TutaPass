@@ -27,6 +27,7 @@ export default function MainLayout({ children }) {
     syllabi,
     activeSyllabus,
     setActiveSyllabus,
+    refreshDashboard,
     dashboardData,
     toastMessage,
   } = useApp();
@@ -81,7 +82,10 @@ export default function MainLayout({ children }) {
                   value={activeSyllabus?.id || ''}
                   onChange={(e) => {
                     const found = syllabi.find((s) => s.id === parseInt(e.target.value, 10));
-                    if (found) setActiveSyllabus(found);
+                    if (found) {
+                      setActiveSyllabus(found);
+                      refreshDashboard(found.id);
+                    }
                   }}
                   className="bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-indigo-500 font-medium cursor-pointer max-w-[200px] truncate"
                 >

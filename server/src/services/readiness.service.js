@@ -5,23 +5,22 @@
  */
 
 const calculateReadiness = async (db, userId = 'demo-learner', syllabusId = null) => {
-  // 1. Fetch domains for requested syllabus (or flagship if null)
-  let domainQuery = `
-    SELECT d.id, d.name, d.weight_min, d.weight_max, d.description, s.id as syllabus_id, s.title as syllabus_title, s.code as syllabus_code
-    FROM domains d
-    JOIN syllabi s ON d.syllabus_id = s.id
-  `;
-  const params = [];
-
-  if (syllabusId) {
-    domainQuery += ` WHERE s.id = $1`;
-    params.push(parseInt(syllabusId, 10));
-  } else {
-    domainQuery += ` WHERE s.is_flagship = true`;
+  // 1. Resolve target syllabus ID (defaulting to flagship if null)
+  let targetSyllabusId = syllabusId ? parseInt(syllabusId, 10) : null;
+  if (!targetSyllabusId) {
+    const flagshipRes = await db.query(`SELECT id FROM syllabi WHERE is_flagship = true LIMIT 1;`);
+    targetSyllabusId = flagshipRes.rows[0]?.id || 1;
   }
-  domainQuery += ` ORDER BY d.id ASC;`;
 
-  const domainRes = await db.query(domainQuery, params);
+  // Fetch domains strictly filtered by d.syllabus_id = $1
+  const domainRes = await db.query(
+    `SELECT d.id, d.name, d.weight_min, d.weight_max, d.description, s.id as syllabus_id, s.title as syllabus_title, s.code as syllabus_code
+     FROM domains d
+     JOIN syllabi s ON d.syllabus_id = s.id
+     WHERE d.syllabus_id = $1
+     ORDER BY d.id ASC;`,
+    [targetSyllabusId]
+  );
   const domains = domainRes.rows;
 
   if (domains.length === 0) {

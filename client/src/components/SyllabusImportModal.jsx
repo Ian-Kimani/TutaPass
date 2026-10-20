@@ -57,7 +57,7 @@ Domain 4: Security Program Management and Oversight (30% of examination)
 - Implement incident response procedures, digital forensics, and reporting`;
 
 export default function SyllabusImportModal() {
-  const { isImportModalOpen, setIsImportModalOpen, setActiveSyllabus, setSyllabi, showToast } = useApp();
+  const { isImportModalOpen, setIsImportModalOpen, setActiveSyllabus, setSyllabi, refreshDashboard, showToast } = useApp();
   const [title, setTitle] = useState('');
   const [rawText, setRawText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -100,6 +100,9 @@ export default function SyllabusImportModal() {
         const updatedList = await apiService.getSyllabi();
         setSyllabi(updatedList);
         setActiveSyllabus(res.syllabus);
+        if (refreshDashboard) {
+          refreshDashboard(res.syllabus.id);
+        }
         showToast(`Successfully imported "${res.syllabus.title}" with starter questions!`, 'success');
         setIsImportModalOpen(false);
       }

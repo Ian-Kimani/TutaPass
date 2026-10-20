@@ -71,8 +71,12 @@ export const apiService = {
   },
 
   // Flashcards (Spaced Repetition)
-  getFlashcards: async (userId = 'demo-learner') => {
-    const res = await apiClient.get(`/flashcards?userId=${userId}`);
+  getFlashcards: async (userId = 'demo-learner', syllabusId = null) => {
+    let endpoint = `/flashcards?userId=${userId}`;
+    if (syllabusId) {
+      endpoint += `&syllabusId=${syllabusId}`;
+    }
+    const res = await apiClient.get(endpoint);
     return handleResponse(res);
   },
 

@@ -36,7 +36,7 @@ const executeGemini = async ({
   techniquesUsed = [],
   fallbackData = null,
 }) => {
-  const models = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+  const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
   let lastError = null;
 
   if (aiClient) {
@@ -401,33 +401,40 @@ Return JSON with format:
   ]
 }`;
 
+  // Dynamic fallback parser: splits raw user text by commas, newlines, or bullets
+  const lines = (rawText || '')
+    .split(/[\n,;]+/)
+    .map((s) => s.trim().replace(/^[-*•\d.]+\s*/, ''))
+    .filter((s) => s.length > 2);
+
+  const domainNames = lines.length > 0
+    ? lines.slice(0, 5)
+    : ['Foundations & Fundamentals', 'Practical Applications', 'Assessment & Standards'];
+
+  const equalWeight = Math.floor(100 / domainNames.length);
+  const remainder = 100 - (equalWeight * domainNames.length);
+
+  const dynamicDomains = domainNames.map((name, idx) => {
+    const weight = equalWeight + (idx === 0 ? remainder : 0);
+    return {
+      name,
+      weight_min: Math.max(10, weight - 5),
+      weight_max: Math.min(60, weight + 5),
+      description: `Core principles, problem-solving, and applications for ${name}.`,
+      suggested_topics: [`${name} Fundamentals`, `${name} Analysis`, `${name} Case Studies`],
+    };
+  });
+
+  const generatedCode = (title || 'CUSTOM')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+    .slice(0, 8) || 'CUSTOM';
+
   const fallbackParsed = {
     title,
-    code: 'CUSTOM-01',
-    description: 'Structured modular exam syllabus auto-imported for adaptive preparation.',
-    domains: [
-      {
-        name: 'Core Concepts & Fundamentals',
-        weight_min: 30,
-        weight_max: 35,
-        description: 'Underlying principles, architecture patterns, and baseline terminology.',
-        suggested_topics: ['Architecture Models', 'Cost Governance', 'Core Protocols'],
-      },
-      {
-        name: 'Technical Implementation & Services',
-        weight_min: 35,
-        weight_max: 40,
-        description: 'Applied services, compute instances, storage and networking configurations.',
-        suggested_topics: ['Compute Provisioning', 'Storage Tiers', 'Network Security'],
-      },
-      {
-        name: 'Security, Compliance & Operations',
-        weight_min: 25,
-        weight_max: 30,
-        description: 'Access controls, monitoring, compliance policies, and incident response.',
-        suggested_topics: ['Identity & Access Control', 'Monitoring & Alerting', 'Disaster Recovery'],
-      },
-    ],
+    code: generatedCode.includes('-') ? generatedCode : `${generatedCode}-101`,
+    description: `Structured curriculum outline for ${title} covering ${domainNames.join(', ')}.`,
+    domains: dynamicDomains,
   };
 
   return executeGemini({

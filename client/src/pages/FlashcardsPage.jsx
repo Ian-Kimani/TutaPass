@@ -23,6 +23,7 @@ export default function FlashcardsPage() {
     setLanguageMode,
     setActiveTab,
     showToast,
+    activeSyllabus,
   } = useApp();
 
   const [cards, setCards] = useState([]);
@@ -35,7 +36,7 @@ export default function FlashcardsPage() {
   const loadFlashcards = async () => {
     try {
       setLoading(true);
-      const res = await apiService.getFlashcards('demo-learner');
+      const res = await apiService.getFlashcards('demo-learner', activeSyllabus?.id || null);
       setCards(res?.flashcards || []);
       setCurrentIndex(0);
       setIsFlipped(false);
@@ -48,7 +49,7 @@ export default function FlashcardsPage() {
 
   useEffect(() => {
     loadFlashcards();
-  }, []);
+  }, [activeSyllabus?.id]);
 
   const displayedCards = filterDueOnly ? cards.filter((c) => c.isDue) : cards;
   const currentCard = displayedCards[currentIndex] || null;

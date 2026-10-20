@@ -192,71 +192,77 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {readiness?.domains?.map((d) => {
-            const cleanTitle = d.name.replace(/^Describe\s+/i, '');
-            return (
-              <div
-                key={d.id}
-                className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition space-y-4 shadow-sm"
-              >
-                <div>
-                  <div className="flex items-center justify-between text-xs mb-2">
-                    <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">
-                      Exam Weight: {d.weightRange}
-                    </span>
-                    <span
-                      className={`font-mono font-bold text-sm ${
-                        d.masteryPercentage >= 80
-                          ? 'text-emerald-400'
-                          : d.masteryPercentage >= 60
-                          ? 'text-indigo-400'
-                          : 'text-amber-400'
-                      }`}
-                    >
-                      {d.masteryPercentage}%
-                    </span>
-                  </div>
-
-                  <h3 className="text-sm font-semibold text-slate-100 leading-snug line-clamp-2">
-                    {cleanTitle}
-                  </h3>
-
-                  <div className="w-full bg-slate-800 h-2.5 rounded-full mt-3 overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-700 ${
-                        d.masteryPercentage >= 80
-                          ? 'bg-emerald-500'
-                          : d.masteryPercentage >= 60
-                          ? 'bg-indigo-500'
-                          : 'bg-amber-500'
-                      }`}
-                      style={{ width: `${d.masteryPercentage}%` }}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2.5">
-                    <span>
-                      {d.correctAttempts}/{d.totalAttempts} correct
-                    </span>
-                    {d.cardsDue > 0 && (
-                      <span className="text-amber-400 font-medium">
-                        {d.cardsDue} mistake cards due
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => handlePracticeDomain(d.id)}
-                  className="w-full py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-indigo-600 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 border border-slate-700/60 hover:border-transparent transition"
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {readiness?.domains && readiness.domains.length > 0 ? (
+            readiness.domains.map((d) => {
+              const cleanTitle = d.name.replace(/^Describe\s+/i, '');
+              return (
+                <div
+                  key={d.id}
+                  className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition space-y-4 shadow-sm"
                 >
-                  <BrainCircuit className="h-3.5 w-3.5" />
-                  <span>Practice This Topic</span>
-                </button>
-              </div>
-            );
-          })}
+                  <div>
+                    <div className="flex items-center justify-between text-xs mb-2">
+                      <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">
+                        Exam Weight: {d.weightRange}
+                      </span>
+                      <span
+                        className={`font-mono font-bold text-sm ${
+                          d.masteryPercentage >= 80
+                            ? 'text-emerald-400'
+                            : d.masteryPercentage >= 60
+                            ? 'text-indigo-400'
+                            : 'text-amber-400'
+                        }`}
+                      >
+                        {d.masteryPercentage}%
+                      </span>
+                    </div>
+
+                    <h3 className="text-sm font-semibold text-slate-100 leading-snug line-clamp-2">
+                      {cleanTitle}
+                    </h3>
+
+                    <div className="w-full bg-slate-800 h-2.5 rounded-full mt-3 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-700 ${
+                          d.masteryPercentage >= 80
+                            ? 'bg-emerald-500'
+                            : d.masteryPercentage >= 60
+                            ? 'bg-indigo-500'
+                            : 'bg-amber-500'
+                        }`}
+                        style={{ width: `${d.masteryPercentage}%` }}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2.5">
+                      <span>
+                        {d.correctAttempts}/{d.totalAttempts} correct
+                      </span>
+                      {d.cardsDue > 0 && (
+                        <span className="text-amber-400 font-medium">
+                          {d.cardsDue} mistake cards due
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handlePracticeDomain(d.id)}
+                    className="w-full py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-indigo-600/20 text-slate-200 hover:text-indigo-300 text-xs font-semibold flex items-center justify-center gap-1.5 border border-slate-700/60 hover:border-indigo-500/50 transition"
+                  >
+                    <span>Practice Topic</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              );
+            })
+          ) : (
+            <div className="col-span-full py-8 text-center text-slate-400 text-sm">
+              No topics found for this exam. Click "+ Add Exam" to import syllabus topics.
+            </div>
+          )}
         </div>
       </section>
 
