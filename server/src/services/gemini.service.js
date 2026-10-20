@@ -1,6 +1,6 @@
 /**
  * TutaPass Gemini AI Service
- * Powered by Google Gemini (`gemini-3.8-flash` with automatic fallback to `gemini-2.5-flash`).
+ * Powered by Google Gemini (`gemini-3.8-flash` with automatic fallback to `gemini-3.5-flash` and `gemini-3.5-flash-lite`).
  * Returns structured results paired with complete prompt telemetry for the Judge's Prompt X-Ray Drawer.
  */
 
@@ -36,7 +36,7 @@ const executeGemini = async ({
   techniquesUsed = [],
   fallbackData = null,
 }) => {
-  const models = ['gemini-3.8-flash', 'gemini-2.5-flash'];
+  const models = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
   let lastError = null;
 
   if (aiClient) {
@@ -71,7 +71,7 @@ const executeGemini = async ({
         };
       } catch (err) {
         lastError = err;
-        console.warn(`[GeminiService] Model ${model} failed, attempting next... (${err.message})`);
+        console.warn(`[GeminiService] ${model} failed, switching to backup model... (${err.message?.slice(0, 70)}...)`);
       }
     }
   }
