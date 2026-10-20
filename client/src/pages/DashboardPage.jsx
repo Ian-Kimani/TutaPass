@@ -5,15 +5,12 @@ import {
   ArrowRight,
   Sparkles,
   Target,
-  CheckCircle2,
-  HelpCircle,
   TrendingUp,
-  BookOpen,
   Search,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { TABS, TONE_MODES } from '../constants/navigation';
-import { formatPercent, getVerdictBadge } from '../utils/formatters';
+import { getVerdictBadge } from '../utils/formatters';
 import apiService from '../services/api.service';
 
 const PRESET_CONCEPTS = [
@@ -71,7 +68,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="flex flex-col items-center gap-3 text-slate-400 text-sm">
           <div className="h-8 w-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          <span>Synchronizing exam telemetry with Neon PostgreSQL...</span>
+          <span>Loading your study progress...</span>
         </div>
       </div>
     );
@@ -79,27 +76,42 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 pb-10">
-      {/* Hero Readiness Banner */}
+      {/* Hero Readiness Banner with Inline Stat Pills */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 p-6 sm:p-8 shadow-xl">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-2xl">
+          <div className="space-y-3.5 max-w-2xl">
             <div className="flex items-center gap-2">
               <span className={`px-3 py-1 rounded-full text-xs font-bold border ${verdictStyle.color}`}>
                 ● {readiness?.verdict || 'Sharpening Phase'}
               </span>
               <span className="text-xs text-slate-400 font-mono">
-                Official AZ-900 Pass Standard: 700/1000 (~70%)
+                Official AZ-900 Pass Standard: ~70%
               </span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Exam Pass Probability: <span className="text-indigo-400">{overallScore}%</span>
+              Exam Readiness: <span className="text-indigo-400">{overallScore}%</span>
             </h1>
 
             <p className="text-sm text-slate-300 leading-relaxed">
-              {readiness?.advice ||
-                'Solid performance foundation. Drill into distractor autopsies and clear due flashcards to elevate your retention into the 80%+ safety zone.'}
+              You're making solid progress! Practice your weakest topics below and review your {metrics?.dueFlashcards ?? 3} mistake cards to reach the 80% safe zone.
             </p>
+
+            {/* Compact Inline Stat Pills */}
+            <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+              <span className="px-3 py-1 rounded-full bg-slate-950/80 border border-slate-800 text-slate-300 font-medium flex items-center gap-1.5">
+                <Target className="h-3.5 w-3.5 text-indigo-400" />
+                <span><strong>{metrics?.overallAccuracy ?? 64}%</strong> Accuracy</span>
+              </span>
+              <span className="px-3 py-1 rounded-full bg-slate-950/80 border border-slate-800 text-slate-300 font-medium flex items-center gap-1.5">
+                <TrendingUp className="h-3.5 w-3.5 text-purple-400" />
+                <span><strong>{metrics?.totalAttempts ?? 11}</strong> Practiced</span>
+              </span>
+              <span className="px-3 py-1 rounded-full bg-slate-950/80 border border-slate-800 text-slate-300 font-medium flex items-center gap-1.5">
+                <Flame className="h-3.5 w-3.5 text-amber-400" />
+                <span><strong>{metrics?.dueFlashcards ?? 3}</strong> Mistake Cards Due</span>
+              </span>
+            </div>
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
@@ -110,7 +122,7 @@ export default function DashboardPage() {
                 className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition hover:scale-[1.02]"
               >
                 <BrainCircuit className="h-4 w-4" />
-                <span>Launch Quiz Arena</span>
+                <span>Practice Quiz</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
 
@@ -119,14 +131,14 @@ export default function DashboardPage() {
                 className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium border border-slate-700/60 flex items-center gap-2 transition"
               >
                 <Flame className="h-4 w-4 text-amber-400" />
-                <span>Review Due Flashcards ({metrics?.dueFlashcards || 0})</span>
+                <span>Review Mistake Cards ({metrics?.dueFlashcards || 0})</span>
               </button>
 
               <button
                 onClick={() => setActiveTab(TABS.PLANNER)}
                 className="px-4 py-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-300 text-xs sm:text-sm font-medium border border-slate-800 transition"
               >
-                View Study Roadmap
+                Study Plan
               </button>
             </div>
           </div>
@@ -159,71 +171,23 @@ export default function DashboardPage() {
                 </span>
               </div>
             </div>
-            <span className="text-xs text-slate-400 mt-2 font-medium">SM-2 Weighted</span>
-          </div>
-        </div>
-      </section>
-
-      {/* 3 Metrics Summary Cards */}
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/80 shadow-sm flex items-center gap-4">
-          <div className="h-12 w-12 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center shrink-0">
-            <Target className="h-6 w-6" />
-          </div>
-          <div>
-            <span className="text-xs text-slate-400 font-medium">Practice Accuracy</span>
-            <div className="text-2xl font-bold text-white mt-0.5">
-              {metrics?.overallAccuracy ?? 64}%
-            </div>
-            <span className="text-[11px] text-slate-400">
-              {metrics?.correctAttempts ?? 7} of {metrics?.totalAttempts ?? 11} questions correct
-            </span>
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/80 shadow-sm flex items-center gap-4">
-          <div className="h-12 w-12 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center shrink-0">
-            <TrendingUp className="h-6 w-6" />
-          </div>
-          <div>
-            <span className="text-xs text-slate-400 font-medium">Questions Practiced</span>
-            <div className="text-2xl font-bold text-white mt-0.5">
-              {metrics?.totalAttempts ?? 11}
-            </div>
-            <span className="text-[11px] text-slate-400">Across 3 core domains</span>
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/80 shadow-sm flex items-center gap-4">
-          <div className="h-12 w-12 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
-            <Flame className="h-6 w-6" />
-          </div>
-          <div>
-            <span className="text-xs text-slate-400 font-medium">Weak-Spot Flashcards</span>
-            <div className="text-2xl font-bold text-white mt-0.5">
-              {metrics?.dueFlashcards ?? 3} <span className="text-xs text-amber-400 font-normal">due today</span>
-            </div>
-            <span className="text-[11px] text-slate-400">
-              {metrics?.totalFlashcards ?? 3} active cards in SRS deck
-            </span>
+            <span className="text-xs text-indigo-400 mt-2 font-medium">Goal: 80%+</span>
           </div>
         </div>
       </section>
 
       {/* Domain Mastery Section */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-white">Syllabus Domain Mastery</h2>
-            <p className="text-xs text-slate-400">
-              Targeted breakdown aligned with official Microsoft AZ-900 exam weightings
-            </p>
-          </div>
+        <div>
+          <h2 className="text-lg font-bold text-white">Topic Mastery</h2>
+          <p className="text-xs text-slate-400">
+            Official Azure Fundamentals exam domains and your current accuracy
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {readiness?.domains?.map((d) => {
-            const isWeak = d.masteryPercentage < 70;
+            const cleanTitle = d.name.replace(/^Describe\s+/i, '');
             return (
               <div
                 key={d.id}
@@ -248,7 +212,7 @@ export default function DashboardPage() {
                   </div>
 
                   <h3 className="text-sm font-semibold text-slate-100 leading-snug line-clamp-2">
-                    {d.name}
+                    {cleanTitle}
                   </h3>
 
                   <div className="w-full bg-slate-800 h-2.5 rounded-full mt-3 overflow-hidden">
@@ -270,7 +234,7 @@ export default function DashboardPage() {
                     </span>
                     {d.cardsDue > 0 && (
                       <span className="text-amber-400 font-medium">
-                        {d.cardsDue} flashcards due
+                        {d.cardsDue} mistake cards due
                       </span>
                     )}
                   </div>
@@ -281,7 +245,7 @@ export default function DashboardPage() {
                   className="w-full py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-indigo-600 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 border border-slate-700/60 hover:border-transparent transition"
                 >
                   <BrainCircuit className="h-3.5 w-3.5" />
-                  <span>Practice This Domain</span>
+                  <span>Practice This Topic</span>
                 </button>
               </div>
             );
@@ -289,7 +253,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* Quick AI Concept Explainer (Study Buddy) Card */}
+      {/* Ask the AI Study Buddy Card */}
       <section className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -297,17 +261,15 @@ export default function DashboardPage() {
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">
-                Quick AI Concept Explainer (Study Buddy)
-              </h2>
+              <h2 className="text-base font-bold text-white">Ask the AI Study Buddy</h2>
               <p className="text-xs text-slate-400">
-                Stuck on an abstract concept? Get an instant breakdown in your active tone mode.
+                Confused by a cloud term? Type it below or click a topic to get a simple breakdown in English, African everyday life, or Sheng.
               </p>
             </div>
           </div>
 
           {/* Quick Tone Switcher on card */}
-          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs shrink-0">
             {TONE_MODES.map((mode) => (
               <button
                 key={mode.id}
@@ -399,13 +361,13 @@ export default function DashboardPage() {
 
             {explanationData.keyAnalogy && (
               <div className="p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-xs text-purple-200">
-                <strong>Standout Analogy:</strong> {explanationData.keyAnalogy}
+                <strong>Everyday Analogy:</strong> {explanationData.keyAnalogy}
               </div>
             )}
 
             {explanationData.takeawayForExam && (
               <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/20 text-xs text-emerald-300">
-                <strong>Exam Day Takeaway:</strong> {explanationData.takeawayForExam}
+                <strong>Key Exam Tip:</strong> {explanationData.takeawayForExam}
               </div>
             )}
           </div>

@@ -8,27 +8,27 @@ export const TABS = {
 export const TAB_ITEMS = [
   {
     id: TABS.DASHBOARD,
-    label: 'Dashboard & Readiness',
+    label: 'Overview',
     iconName: 'BarChart3',
-    description: 'Pass probability, domain mastery, and readiness telemetry',
+    description: 'Exam readiness score, domain progress, and study stats',
   },
   {
     id: TABS.PLANNER,
-    label: 'Smart Study Planner',
+    label: 'Study Plan',
     iconName: 'Calendar',
-    description: 'Calendar roadmap weighted by your weakest domains',
+    description: 'Daily checklist focused on your weakest exam areas',
   },
   {
     id: TABS.QUIZ,
-    label: 'Practice Arena (Smart Quiz)',
+    label: 'Practice Quiz',
     iconName: 'BrainCircuit',
-    description: 'Scenario questions with instant Distractor Autopsies',
+    description: 'Real scenarios with instant explanations for every answer choice',
   },
   {
     id: TABS.FLASHCARDS,
-    label: 'Weak-Spot Flashcards',
+    label: 'Mistake Cards',
     iconName: 'Flame',
-    description: 'Auto-generated SM-2 spaced repetition deck from missed questions',
+    description: 'Spaced repetition cards created from missed quiz questions',
   },
 ];
 
@@ -42,14 +42,14 @@ export const TONE_MODES = [
   },
   {
     id: 'african_context',
-    shortLabel: 'African Analogy',
+    shortLabel: 'African Life',
     label: 'African Real-Life Analogy',
     badge: 'Everyday Life',
     description: 'Relatable parallels using M-Pesa, bodaboda networks, and local commerce.',
   },
   {
     id: 'sheng',
-    shortLabel: 'Sheng Mode',
+    shortLabel: 'Sheng',
     label: 'Nairobi Sheng Mode',
     badge: 'Street Tech Vibes',
     description: 'East African tech street dialect that makes abstract ideas stick effortlessly.',

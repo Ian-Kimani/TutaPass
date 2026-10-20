@@ -322,7 +322,7 @@ export default function QuizArenaPage() {
                   <div className="flex items-center gap-2.5">
                     <Flame className="h-5 w-5 text-amber-400 shrink-0" />
                     <span>
-                      <strong>Missed Concept Harvested!</strong> A Weak-Spot Flashcard was auto-created in your SM-2 deck for spaced review.
+                      <strong>Saved to your Mistake Cards</strong> so you can review it later!
                     </span>
                   </div>
                   <button
@@ -344,12 +344,12 @@ export default function QuizArenaPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
                   <div className="flex items-center gap-2.5">
                     <div className="h-9 w-9 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold">
-                      🔬
+                      💡
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-white">The Distractor Autopsy Engine</h3>
+                      <h3 className="text-sm font-bold text-white">Why Each Option Is Right or Wrong</h3>
                       <p className="text-xs text-slate-400">
-                        Dissecting why tempting distractors fail & exactly when they WOULD be the right architecture
+                        Clear explanations for why wrong choices fail and when they would actually apply
                       </p>
                     </div>
                   </div>
@@ -394,7 +394,7 @@ export default function QuizArenaPage() {
                     <div className="space-y-2.5">
                       <div>
                         <span className="font-bold text-slate-300 block mb-0.5">
-                          1. Why {displayedAutopsyOption.is_correct ? 'This Solves the Scenario' : 'This Option Fails'}:
+                          Why this is {displayedAutopsyOption.is_correct ? 'right:' : 'wrong:'}
                         </span>
                         <p className="text-slate-400 leading-relaxed pl-3 border-l-2 border-slate-700">
                           {displayedAutopsyOption.autopsy.why_wrong}
@@ -403,7 +403,7 @@ export default function QuizArenaPage() {
 
                       <div>
                         <span className="font-bold text-purple-300 block mb-0.5">
-                          2. When WOULD this option be the correct answer?
+                          When WOULD this option be the right answer?
                         </span>
                         <p className="text-purple-200/90 leading-relaxed pl-3 border-l-2 border-purple-500/60">
                           {displayedAutopsyOption.autopsy.right_scenario}
@@ -413,7 +413,7 @@ export default function QuizArenaPage() {
                       {displayedAutopsyOption.autopsy.trap && displayedAutopsyOption.autopsy.trap !== 'N/A' && (
                         <div>
                           <span className="font-bold text-amber-300 block mb-0.5">
-                            3. The Exam Trap / Misconception:
+                            Common exam trap to watch out for:
                           </span>
                           <p className="text-amber-200/90 leading-relaxed pl-3 border-l-2 border-amber-500/60">
                             {displayedAutopsyOption.autopsy.trap}

@@ -91,17 +91,9 @@ export default function FlashcardsPage() {
       {/* Header */}
       <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-              Tab 4 • Weak-Spot Flashcards
-            </span>
-            <span className="text-xs text-slate-400 font-mono">
-              SuperMemo-2 (SM-2) Spaced Repetition Engine
-            </span>
-          </div>
-          <h1 className="text-2xl font-bold text-white mt-2">Active Recall Coach</h1>
+          <h1 className="text-2xl font-bold text-white">Review Your Mistake Cards</h1>
           <p className="text-xs text-slate-400 mt-1 max-w-xl">
-            Concepts you missed in the Quiz Arena are automatically harvested into this deck and scheduled at optimal forgetting curves.
+            Every question you miss in the Practice Quiz automatically shows up here until you master it.
           </p>
         </div>
 
@@ -286,25 +278,20 @@ export default function FlashcardsPage() {
                   </div>
                 )}
 
-                {/* SM-2 Recall Rating Controls */}
-                <div className="pt-2 space-y-2">
-                  <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span className="font-semibold text-slate-300">
-                      How easily did you recall this concept?
-                    </span>
-                    <span className="text-[11px] font-mono">
-                      Interval: {currentCard.interval_days || 1}d • EF: {currentCard.ease_factor || 2.5}
-                    </span>
-                  </div>
+                {/* Recall Rating Controls */}
+                <div className="pt-2 space-y-2.5">
+                  <span className="font-semibold text-slate-300 text-xs block text-center sm:text-left">
+                    How well did you know this answer?
+                  </span>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <button
                       disabled={submittingRating}
                       onClick={() => handleRating('forgot')}
                       className="py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold text-xs flex flex-col items-center gap-0.5 transition"
                     >
                       <span>Forgot</span>
-                      <span className="text-[10px] text-rose-400/80 font-normal">Reset 1 Day</span>
+                      <span className="text-[10px] text-rose-400/80 font-normal">See tomorrow</span>
                     </button>
 
                     <button
@@ -313,7 +300,7 @@ export default function FlashcardsPage() {
                       className="py-2.5 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold text-xs flex flex-col items-center gap-0.5 transition"
                     >
                       <span>Hard</span>
-                      <span className="text-[10px] text-amber-400/80 font-normal">Review Soon</span>
+                      <span className="text-[10px] text-amber-400/80 font-normal">In 2 days</span>
                     </button>
 
                     <button
@@ -322,7 +309,7 @@ export default function FlashcardsPage() {
                       className="py-2.5 px-3 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold text-xs flex flex-col items-center gap-0.5 transition"
                     >
                       <span>Good</span>
-                      <span className="text-[10px] text-indigo-400/80 font-normal">+3 Days</span>
+                      <span className="text-[10px] text-indigo-400/80 font-normal">In 4 days</span>
                     </button>
 
                     <button
@@ -331,7 +318,7 @@ export default function FlashcardsPage() {
                       className="py-2.5 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold text-xs flex flex-col items-center gap-0.5 transition"
                     >
                       <span>Easy</span>
-                      <span className="text-[10px] text-emerald-400/80 font-normal">+5 Days</span>
+                      <span className="text-[10px] text-emerald-400/80 font-normal">Mastered</span>
                     </button>
                   </div>
                 </div>

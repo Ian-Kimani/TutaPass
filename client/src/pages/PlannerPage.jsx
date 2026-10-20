@@ -96,12 +96,9 @@ export default function PlannerPage() {
       {/* Header */}
       <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
-            Tab 2 • Personal Study Planner
-          </span>
-          <h1 className="text-2xl font-bold text-white mt-2">Adaptive Exam Roadmap</h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Dynamic calendar timetable that over-indexes study time on your weakest syllabus domains.
+          <h1 className="text-2xl font-bold text-white">Your Daily Study Plan</h1>
+          <p className="text-xs text-slate-400 mt-1 max-w-xl">
+            Tell us your exam date and daily free time—we'll build a simple checklist focused on your weak topics.
           </p>
         </div>
 
@@ -126,7 +123,7 @@ export default function PlannerPage() {
           <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-sm space-y-5">
             <div className="flex items-center gap-2 text-white font-bold text-sm pb-3 border-b border-slate-800">
               <Calendar className="h-4 w-4 text-purple-400" />
-              <span>Configure Study Parameters</span>
+              <span>Set Your Schedule</span>
             </div>
 
             <form onSubmit={handleGeneratePlan} className="space-y-4">
@@ -199,12 +196,12 @@ export default function PlannerPage() {
                 {generating ? (
                   <>
                     <span className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                    <span>Gemini is Architecting Schedule...</span>
+                    <span>Building Your Plan...</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    <span>Generate Adaptive Plan with Gemini</span>
+                    <span>Create My Study Plan</span>
                   </>
                 )}
               </button>
