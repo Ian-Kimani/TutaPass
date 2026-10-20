@@ -6,6 +6,7 @@ const AppContext = createContext(null);
 
 export const AppProvider = ({ children }) => {
   const [activeTab, setActiveTab] = useState(TABS.DASHBOARD);
+  const [selectedQuizDomainId, setSelectedQuizDomainId] = useState(null);
   const [languageMode, setLanguageMode] = useState('african_context'); // default to engaging African Real-Life Analogy
   const [isXRayOpen, setIsXRayOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -104,6 +105,8 @@ Output strictly valid JSON with no markdown wrapping.`,
   const value = {
     activeTab,
     setActiveTab,
+    selectedQuizDomainId,
+    setSelectedQuizDomainId,
     languageMode,
     setLanguageMode,
     isXRayOpen,
