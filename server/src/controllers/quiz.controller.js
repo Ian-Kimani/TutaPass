@@ -138,16 +138,23 @@ const generateMoreQuestions = asyncHandler(async (req, res) => {
     return sendError(res, 'domainId is required to generate questions.', 400);
   }
 
-  // Look up domain name
-  const dRes = await db.query('SELECT id, name FROM domains WHERE id = $1;', [domainId]);
+  // Look up domain name and syllabus title
+  const dRes = await db.query(
+    `SELECT d.id, d.name, s.title as syllabus_title 
+     FROM domains d 
+     JOIN syllabi s ON d.syllabus_id = s.id 
+     WHERE d.id = $1;`,
+    [domainId]
+  );
   if (dRes.rows.length === 0) {
     return sendError(res, `Domain ID ${domainId} not found.`, 404);
   }
   const domain = dRes.rows[0];
 
   const { result: generatedQuestions, promptTelemetry } = await geminiService.generateQuizQuestions({
+    syllabusTitle: domain.syllabus_title || 'Exam Track',
     domainName: domain.name,
-    topicTag,
+    topicTag: topicTag || domain.name,
     count: Math.min(parseInt(count, 10) || 2, 5),
     difficulty,
   });

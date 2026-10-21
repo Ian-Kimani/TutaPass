@@ -88,6 +88,7 @@ const importSyllabus = asyncHandler(async (req, res) => {
   for (const d of createdDomains) {
     try {
       const qGen = await geminiService.generateQuizQuestions({
+        syllabusTitle: newSyllabus.title,
         domainName: d.name,
         topicTag: d.name,
         count: 1,
@@ -176,6 +177,35 @@ const importSyllabus = asyncHandler(async (req, res) => {
         ]
       );
     }
+  }
+
+  // Auto-generate starter study plan strictly tailored to this newly imported syllabus
+  try {
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + 14);
+    const planGen = await geminiService.generateStudyPlan({
+      syllabusTitle: newSyllabus.title,
+      targetExamDate: targetDate.toISOString().split('T')[0],
+      dailyHours: 1.5,
+      weakAreas: createdDomains.map((d) => d.name),
+    });
+
+    if (planGen?.result) {
+      const scheduleData = planGen.result.schedule || planGen.result;
+      await db.query(
+        `INSERT INTO study_plans (user_id, syllabus_id, target_exam_date, daily_hours, schedule_data)
+         VALUES ($1, $2, $3, $4, $5);`,
+        [
+          'demo-learner',
+          newSyllabus.id,
+          targetDate.toISOString().split('T')[0],
+          1.5,
+          JSON.stringify(scheduleData),
+        ]
+      );
+    }
+  } catch (err) {
+    console.warn('[importSyllabus] Could not auto-generate starter study plan:', err.message);
   }
 
   return sendSuccess(

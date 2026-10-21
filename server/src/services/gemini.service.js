@@ -36,7 +36,7 @@ const executeGemini = async ({
   techniquesUsed = [],
   fallbackData = null,
 }) => {
-  const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  const models = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];
   let lastError = null;
 
   if (aiClient) {
@@ -111,27 +111,31 @@ const generateStudyPlan = async ({
     Math.ceil((new Date(targetExamDate) - new Date()) / (1000 * 60 * 60 * 24))
   );
 
-  const systemInstruction = `You are the TutaPass Adaptive Study Planner AI.
-Your goal is to build an achievable, high-impact day-by-day study roadmap for certification exams like AZ-900.
-Prioritize weak areas with extra revision and distractor autopsies.
+  const systemInstruction = `You are the TutaPass Adaptive Study Planner AI for: "${syllabusTitle}".
+Your goal is to build an achievable, high-impact day-by-day study roadmap for this specific subject or examination track.
+Focus strictly on topics, skills, and principles directly belonging to "${syllabusTitle}".
+Do NOT generate cloud or Azure topics unless the syllabus title is specifically about Azure or cloud computing!
+Prioritize weak areas with extra revision and active recall.
 Return strictly valid JSON with no markdown wrapping.`;
 
   const userPrompt = `Generate a realistic ${Math.min(daysRemaining, 14)}-day study timetable for:
-- Syllabus: ${syllabusTitle}
-- Exam Date: ${targetExamDate} (${daysRemaining} days remaining)
+- Subject / Exam Syllabus: "${syllabusTitle}"
+- Target Exam Date: ${targetExamDate} (${daysRemaining} days remaining)
 - Available Daily Hours: ${dailyHours} hours/day
-- Learner Weak Areas to Over-index on: ${weakAreas.length > 0 ? weakAreas.join(', ') : 'None specified (balanced approach)'}
+- Learner Weak Areas to Over-index on: ${weakAreas.length > 0 ? weakAreas.join(', ') : 'None specified (balanced approach across all curriculum topics)'}
+
+Every single day MUST be directly about topics from "${syllabusTitle}".
 
 Return JSON with format:
 {
-  "summary": "Short motivating overview of this study roadmap",
+  "summary": "Short motivating overview of this study roadmap for ${syllabusTitle}",
   "totalDays": ${Math.min(daysRemaining, 14)},
   "dailyHours": ${dailyHours},
   "schedule": [
     {
       "day": 1,
-      "topic": "Topic Name",
-      "domain": "Domain Name",
+      "topic": "Specific Topic Name relevant to ${syllabusTitle}",
+      "domain": "Domain or subject category",
       "targetMinutes": ${Math.round(dailyHours * 60)},
       "status": "pending",
       "actionItem": "Specific active recall activity for this session"
@@ -139,18 +143,30 @@ Return JSON with format:
   ]
 }`;
 
-  const fallbackSchedule = [
-    { day: 1, topic: 'Cloud Concepts (CapEx vs OpEx, Cloud Benefits)', domain: 'Describe Cloud Concepts', targetMinutes: Math.round(dailyHours * 60), status: 'pending', actionItem: 'Master consumption billing vs upfront CapEx with African market analogies.' },
-    { day: 2, topic: 'Cloud Deployment Models (Public, Private, Hybrid)', domain: 'Describe Cloud Concepts', targetMinutes: Math.round(dailyHours * 60), status: 'pending', actionItem: 'Understand sovereign banking compliance vs cloud elasticity.' },
-    { day: 3, topic: 'Azure Physical Architecture (Regions, Availability Zones)', domain: 'Describe Azure Architecture and Services', targetMinutes: Math.round(dailyHours * 60), status: 'pending', actionItem: 'Compare rack-level vs datacenter-level fault tolerance.' },
-    { day: 4, topic: 'Azure Compute Services (VMs, App Services, Functions)', domain: 'Describe Azure Architecture and Services', targetMinutes: Math.round(dailyHours * 60), status: 'pending', actionItem: 'Practice event-driven serverless vs managed IaaS scenarios.' },
-    { day: 5, topic: 'Azure Storage & Virtual Networks', domain: 'Describe Azure Architecture and Services', targetMinutes: Math.round(dailyHours * 60), status: 'pending', actionItem: 'Drill Blob storage tiers and VNet peering.' },
-    { day: 6, topic: 'Azure Governance (Policy, RBAC, Locks)', domain: 'Describe Azure Management and Governance', targetMinutes: Math.round(dailyHours * 60), status: 'pending', actionItem: 'Autopsy the difference between authorization (RBAC) and compliance barriers (Policy).' },
-    { day: 7, topic: 'Cost Management & Resource Tagging', domain: 'Describe Azure Management and Governance', targetMinutes: Math.round(dailyHours * 60), status: 'pending', actionItem: 'Solve department billing attribution scenarios.' },
-    { day: 8, topic: 'Targeted Weak-Spot Flashcard Drill', domain: 'Review & Retention', targetMinutes: Math.round(dailyHours * 60), status: 'pending', actionItem: 'Clear all due SM-2 flashcards created from past quiz mistakes.' },
-    { day: 9, topic: 'Full AZ-900 Timed Practice Simulation', domain: 'Simulation Drill', targetMinutes: Math.round(dailyHours * 60), status: 'pending', actionItem: 'Complete a full speed quiz and review distractor autopsies.' },
-    { day: 10, topic: 'Final Pre-Exam Confidence Polish', domain: 'Final Review', targetMinutes: Math.round(dailyHours * 60), status: 'pending', actionItem: 'Review summary flashcards and rest before exam day.' }
-  ].slice(0, Math.min(daysRemaining, 10));
+  // Dynamic fallback schedule derived from weak areas and syllabusTitle
+  const topicList = (weakAreas && weakAreas.length > 0)
+    ? weakAreas
+    : [
+        `${syllabusTitle} Foundations & Fundamentals`,
+        `${syllabusTitle} Core Principles & Rules`,
+        `${syllabusTitle} Problem Solving & Computation`,
+        `${syllabusTitle} Applied Scenarios & Case Studies`,
+        `${syllabusTitle} High-Yield Speed Drill`,
+      ];
+
+  const totalScheduleDays = Math.min(daysRemaining, 10);
+  const fallbackSchedule = Array.from({ length: totalScheduleDays }, (_, i) => {
+    const day = i + 1;
+    const topic = topicList[(day - 1) % topicList.length];
+    return {
+      day,
+      topic: `${topic} (Session ${Math.floor((day - 1) / topicList.length) + 1})`,
+      domain: topic,
+      targetMinutes: Math.round(dailyHours * 60),
+      status: 'pending',
+      actionItem: `Active recall: solve 5 scenario problems on ${topic} and review distractor autopsy notes.`,
+    };
+  });
 
   return executeGemini({
     systemInstruction,
@@ -163,7 +179,7 @@ Return JSON with format:
       'Time-to-Exam Boundary Constraints',
     ],
     fallbackData: {
-      summary: `Tailored ${daysRemaining}-day acceleration plan balancing core AZ-900 domains and targeted review drills.`,
+      summary: `Tailored ${daysRemaining}-day acceleration plan balancing core topics and targeted review drills for ${syllabusTitle}.`,
       totalDays: fallbackSchedule.length,
       dailyHours,
       schedule: fallbackSchedule,
@@ -175,32 +191,39 @@ Return JSON with format:
  * 2. Generate scenario-based quiz questions with full Distractor Autopsies and cultural context translations.
  */
 const generateQuizQuestions = async ({
-  domainName = 'Describe Cloud Concepts',
-  topicTag = 'Cloud Economics',
+  syllabusTitle = 'Certification Exam Track',
+  domainName = 'Core Topics',
+  topicTag = 'Fundamentals',
   count = 2,
   difficulty = 'medium',
 }) => {
-  const systemInstruction = `You are the Lead Question Architect for TutaPass (Unofficial AZ-900 Exam Prep).
+  const isCloudCourse = syllabusTitle.toLowerCase().includes('azure') || syllabusTitle.toLowerCase().includes('cloud') || syllabusTitle.toLowerCase().includes('aws');
+
+  const systemInstruction = `You are the Lead Question Architect for TutaPass Adaptive Exam Prep for: "${syllabusTitle}".
 RULES:
-1. STRICT COMPLIANCE: NEVER copy real proprietary exam questions from Microsoft or use Microsoft logos. Write 100% original, practical enterprise scenarios based on public Microsoft Learn outlines.
+1. CURRICULUM GROUNDING: Write 100% original, practical multiple-choice scenario questions strictly relevant to: "${syllabusTitle}" (Domain: "${domainName}", Topic: "${topicTag}").
+   ${isCloudCourse ? 'Focus on cloud architecture and services.' : `IMPORTANT: This is "${syllabusTitle}". NEVER include Azure, cloud computing, CapEx/OpEx, or IT infrastructure questions! Focus exclusively on authentic concepts, formulas, rules, and problem-solving scenarios for "${domainName}".`}
 2. DISTRACTOR AUTOPSY: For EVERY single option, dissect why it is wrong, when it WOULD be right, and what mental trap tricks students.
 3. CULTURAL CONTEXT SWITCHER: Provide 3 rich explanation modes:
-   - "standard": Enterprise English.
-   - "african_context": Relatable Kenyan/African real-world parallels (M-Pesa, bodaboda, matatu saccos, KPLC grid, local banking).
-   - "sheng": Nairobi urban tech slang with natural, punchy street energy.
+   - "standard": Formal academic/enterprise explanation.
+   - "african_context": Relatable Kenyan/African real-world parallels (M-Pesa, bodaboda, matatu saccos, local markets, agriculture, or day-to-day African life).
+   - "sheng": Nairobi urban tech/student Sheng breakdown with natural, punchy street energy.
 Output strictly valid JSON with no markdown wrapping.`;
 
   const userPrompt = `Generate ${count} original scenario-based multiple choice question(s) for:
-- Domain: ${domainName}
-- Topic: ${topicTag}
+- Course / Syllabus: "${syllabusTitle}"
+- Domain: "${domainName}"
+- Topic: "${topicTag}"
 - Difficulty: ${difficulty}
+
+Every single question must be directly about "${syllabusTitle}" and "${domainName}".
 
 Return JSON as an array of question objects matching this schema:
 [
   {
     "topic_tag": "${topicTag}",
-    "scenario": "A 2-3 sentence realistic business scenario",
-    "question": "Clear focused question asking which service or concept applies",
+    "scenario": "A 2-3 sentence realistic scenario directly testing ${domainName}",
+    "question": "Clear focused question asking which method, rule, or principle applies",
     "difficulty": "${difficulty}",
     "options": [
       {
@@ -237,68 +260,125 @@ Return JSON as an array of question objects matching this schema:
       }
     ],
     "context_translations": {
-      "standard": "Clear technical explanation of the concept",
-      "african_context": "Vivid everyday African analogy (e.g., M-Pesa agents or Matatu operations)",
-      "sheng": "High-vibe Nairobi tech Sheng breakdown"
+      "standard": "Clear explanation of the concept for ${syllabusTitle}",
+      "african_context": "Vivid everyday African analogy",
+      "sheng": "High-vibe Nairobi Sheng breakdown"
     }
   }
 ]`;
 
-  const fallbackQuestions = [
-    {
-      topic_tag: topicTag,
-      scenario: 'A microfinance company based in Kisumu is moving its customer verification service to the cloud. They require an infrastructure model where they do not need to purchase physical hardware upfront and can stop paying immediately during low-traffic night hours.',
-      question: 'Which cloud computing expenditure model matches this operational requirement?',
-      difficulty,
-      options: [
+  // Dynamic fallback questions strictly matching the syllabus and domain
+  const fallbackQuestions = isCloudCourse
+    ? [
         {
-          id: 'A',
-          text: 'Capital Expenditure (CapEx)',
-          is_correct: false,
-          autopsy: {
-            why_wrong: 'CapEx requires paying full upfront hardware and data center costs before using any compute.',
-            right_scenario: 'When buying and owning physical on-premises servers depreciated over multiple years.',
-            trap: 'Assuming all enterprise IT purchasing is CapEx.'
-          }
-        },
-        {
-          id: 'B',
-          text: 'Operational Expenditure (OpEx)',
-          is_correct: true,
-          autopsy: {
-            why_wrong: 'N/A - This is correct.',
-            right_scenario: 'Paying only for the cloud compute and storage consumed without upfront physical hardware investment.',
-            trap: 'N/A'
-          }
-        },
-        {
-          id: 'C',
-          text: 'Total Cost of Ownership (TCO) Model',
-          is_correct: false,
-          autopsy: {
-            why_wrong: 'TCO is an analysis metric to compare overall on-premise vs cloud costs, not an expenditure billing model.',
-            right_scenario: 'When calculating multi-year financial comparisons before cloud migration.',
-            trap: 'Confusing a financial analysis tool with an accounting payment model.'
-          }
-        },
-        {
-          id: 'D',
-          text: 'Fault Tolerance Expenditure',
-          is_correct: false,
-          autopsy: {
-            why_wrong: 'Fault tolerance is an architectural reliability design, not a recognized cloud accounting category.',
-            right_scenario: 'When engineering zero-downtime multi-datacenter replication.',
-            trap: 'Picking technical buzzwords instead of economic concepts.'
+          topic_tag: topicTag,
+          scenario: 'A microfinance company based in Kisumu is moving its customer verification service to the cloud. They require an infrastructure model where they do not need to purchase physical hardware upfront and can stop paying immediately during low-traffic night hours.',
+          question: 'Which cloud computing expenditure model matches this operational requirement?',
+          difficulty,
+          options: [
+            {
+              id: 'A',
+              text: 'Capital Expenditure (CapEx)',
+              is_correct: false,
+              autopsy: {
+                why_wrong: 'CapEx requires paying full upfront hardware and data center costs before using any compute.',
+                right_scenario: 'When buying and owning physical on-premises servers depreciated over multiple years.',
+                trap: 'Assuming all enterprise IT purchasing is CapEx.'
+              }
+            },
+            {
+              id: 'B',
+              text: 'Operational Expenditure (OpEx)',
+              is_correct: true,
+              autopsy: {
+                why_wrong: 'N/A - This is correct.',
+                right_scenario: 'Paying only for the cloud compute and storage consumed without upfront physical hardware investment.',
+                trap: 'N/A'
+              }
+            },
+            {
+              id: 'C',
+              text: 'Total Cost of Ownership (TCO) Model',
+              is_correct: false,
+              autopsy: {
+                why_wrong: 'TCO is an analysis metric to compare overall on-premise vs cloud costs, not an expenditure billing model.',
+                right_scenario: 'When calculating multi-year financial comparisons before cloud migration.',
+                trap: 'Confusing a financial analysis tool with an accounting payment model.'
+              }
+            },
+            {
+              id: 'D',
+              text: 'Fault Tolerance Expenditure',
+              is_correct: false,
+              autopsy: {
+                why_wrong: 'Fault tolerance is an architectural reliability design, not a recognized cloud accounting category.',
+                right_scenario: 'When engineering zero-downtime multi-datacenter replication.',
+                trap: 'Picking technical buzzwords instead of economic concepts.'
+              }
+            }
+          ],
+          context_translations: {
+            standard: 'Operational Expenditure (OpEx) allows paying for services on-demand with zero upfront infrastructure capital investments.',
+            african_context: 'CapEx is like buying a whole Matatu before starting a transport business. OpEx is paying for a seat in a shuttle only on days you actually travel!',
+            sheng: 'CapEx ni kubuy matatu cash kabla usafiri. OpEx ni kulipa fare ya Super Metro siku ile tu unajongea tao—huna stress ya spare parts!'
           }
         }
-      ],
-      context_translations: {
-        standard: 'Operational Expenditure (OpEx) allows paying for services on-demand with zero upfront infrastructure capital investments.',
-        african_context: 'CapEx is like buying a whole Matatu before starting a transport business. OpEx is paying for a seat in a shuttle only on days you actually travel!',
-        sheng: 'CapEx ni kubuy matatu cash kabla usafiri. OpEx ni kulipa fare ya Super Metro siku ile tu unajongea tao—huna stress ya spare parts!'
-      }
-    }
-  ];
+      ]
+    : [
+        {
+          topic_tag: topicTag || domainName,
+          scenario: `A student preparing for ${syllabusTitle} is analyzing a problem in ${domainName} (${topicTag}). They need to determine the correct principle, formula, or procedure to solve the question accurately.`,
+          question: `Which of the following represents the correct method or principle for ${domainName}?`,
+          difficulty,
+          options: [
+            {
+              id: 'A',
+              text: `Apply the verified fundamental method defined for ${topicTag || domainName}`,
+              is_correct: true,
+              autopsy: {
+                why_wrong: 'N/A - This is correct.',
+                right_scenario: `Standard recommended approach for ${topicTag || domainName}.`,
+                trap: 'N/A'
+              }
+            },
+            {
+              id: 'B',
+              text: `Invert the core formula or omit critical boundary constraints`,
+              is_correct: false,
+              autopsy: {
+                why_wrong: `Violates core foundational theorems of ${domainName}.`,
+                right_scenario: 'Only applicable in specialized inverted coordinate systems.',
+                trap: 'Forgetting sign changes or order of operations.'
+              }
+            },
+            {
+              id: 'C',
+              text: `Use an approximate heuristic without validating conditions`,
+              is_correct: false,
+              autopsy: {
+                why_wrong: `Lacks required precision and verification for ${domainName}.`,
+                right_scenario: 'Informal estimation only, not accepted on official examinations.',
+                trap: 'Assuming rough mental estimates yield exact examination marks.'
+              }
+            },
+            {
+              id: 'D',
+              text: `Apply an unrelated rule from an external topic`,
+              is_correct: false,
+              autopsy: {
+                why_wrong: `Irrelevant to evaluating ${domainName}.`,
+                right_scenario: 'Relevant to completely different analytical domains.',
+                trap: 'Picking familiar terms from other sections without checking context.'
+              }
+            }
+          ],
+          context_translations: {
+            standard: `In ${syllabusTitle}, questions on ${domainName} test strict adherence to formal definitions and stepwise problem-solving.`,
+            african_context: `Kama vile fundi anavyopima mara mbili kabla ya kukata mbao mara moja—kwa ${domainName}, lazima ufuata kanuni halisi ili upate jibu sahihi bila kubahatisha!`,
+            sheng: `Hii hesabu ya ${domainName} inataka utulivu na kufuata formula ya ukweli. Usibahatishe maze, fuata hatua zote upate full marks zako!`
+          }
+        }
+      ];
 
   return executeGemini({
     systemInstruction,

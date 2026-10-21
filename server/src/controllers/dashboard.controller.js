@@ -77,7 +77,8 @@ const createOrUpdatePlan = asyncHandler(async (req, res) => {
     weakAreas,
   });
 
-  // Save or replace study plan
+  // Save or replace study plan for this specific syllabus
+  await db.query('DELETE FROM study_plans WHERE user_id = $1 AND syllabus_id = $2;', [userId, syllabus.id]);
   const insertRes = await db.query(
     `INSERT INTO study_plans (user_id, syllabus_id, target_exam_date, daily_hours, schedule_data)
      VALUES ($1, $2, $3, $4, $5)

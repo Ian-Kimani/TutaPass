@@ -39,7 +39,7 @@ const getFlashcards = asyncHandler(async (req, res) => {
   }
   query += ` ORDER BY f.next_review_at ASC, f.id ASC;`;
 
-  const { rows } = await db.query(query, [userId]);
+  const { rows } = await db.query(query, params);
 
   const now = new Date();
   let dueCount = 0;
