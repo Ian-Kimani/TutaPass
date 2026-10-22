@@ -14,11 +14,12 @@ async function seed() {
 
     // 2. Insert AZ-900 Flagship Syllabus
     const syllabusRes = await client.query(`
-      INSERT INTO syllabi (title, code, description, is_flagship)
+      INSERT INTO syllabi (title, code, description, source_url, is_flagship)
       VALUES (
         'Microsoft Azure Fundamentals (Unofficial Prep)',
         'AZ-900',
         'Official skills outline covering Cloud Concepts, Azure Architecture & Services, and Azure Management & Governance.',
+        'https://learn.microsoft.com/credentials/certifications/resources/study-guides/az-900',
         true
       )
       RETURNING id, title;
