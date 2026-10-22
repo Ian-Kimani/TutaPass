@@ -1,10 +1,23 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+function getBaseUrl() {
+  const envUrl = (import.meta.env.VITE_API_URL || '').trim();
+  if (!envUrl) {
+    return 'http://localhost:5000/api';
+  }
+  // Strip trailing slashes
+  const clean = envUrl.replace(/\/+$/, '');
+  // If user provided base URL without /api, ensure /api is attached
+  return clean.endsWith('/api') ? clean : `${clean}/api`;
+}
+
+const BASE_URL = getBaseUrl();
 
 /**
- * Universal JSON Fetch Wrapper with robust error handling.
+ * Universal JSON Fetch Wrapper with robust URL normalization and error handling.
  */
 export async function request(endpoint, options = {}) {
-  const url = `${BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  // Strip leading slashes to prevent double slashes (e.g. //syllabus)
+  const cleanEndpoint = endpoint.replace(/^\/+/, '');
+  const url = `${BASE_URL}/${cleanEndpoint}`;
 
   const defaultHeaders = {
     'Content-Type': 'application/json',
@@ -33,7 +46,7 @@ export async function request(endpoint, options = {}) {
 
     return data;
   } catch (err) {
-    console.error(`[API Error] ${options.method || 'GET'} ${endpoint}:`, err.message);
+    console.error(`[API Error] ${options.method || 'GET'} ${cleanEndpoint}:`, err.message);
     throw err;
   }
 }
