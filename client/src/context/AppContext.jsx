@@ -30,6 +30,7 @@ export const AppProvider = ({ children }) => {
       'Tri-Linguistic Cultural Persona Switching (Standard / African / Sheng)',
       'Negative Intellectual Property & Anti-Dumping Constraints',
       'Structured JSON Schema Enforcement',
+      'Teach-Back Reasoning & Misconception Detection',
     ],
     systemInstruction: `You are the Lead Question Architect & Adaptive Coach for TutaPass (Unofficial AZ-900 Exam Prep).
 RULES:

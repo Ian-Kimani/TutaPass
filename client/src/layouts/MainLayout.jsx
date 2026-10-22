@@ -222,7 +222,7 @@ export default function MainLayout({ children }) {
                   20%
                 </span>
               </div>
-              <div className="text-xs font-bold text-white truncate">See how the AI works</div>
+              <div className="text-xs font-bold text-white truncate">AI Transparency Lab</div>
             </div>
           </button>
 
