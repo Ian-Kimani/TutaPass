@@ -20,7 +20,7 @@ export const AppProvider = ({ children }) => {
 
   // Baseline prompt telemetry for initial inspection by judges before any button is clicked
   const [promptTelemetry, setPromptTelemetry] = useState({
-    modelUsed: 'gemini-3.8-flash (High)',
+    modelUsed: 'Gemini Flash (ready)',
     temperature: 0.7,
     status: 'ready_for_inspection',
     timestamp: new Date().toISOString(),

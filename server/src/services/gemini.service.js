@@ -1,6 +1,6 @@
 /**
  * TutaPass Gemini AI Service
- * Powered by Google Gemini (`gemini-3.8-flash` with automatic fallback to `gemini-3.5-flash` and `gemini-3.5-flash-lite`).
+ * Powered by Google Gemini Flash with automatic fallback across supported Flash model aliases.
  * Returns structured results paired with complete prompt telemetry for the Judge's Prompt X-Ray Drawer.
  */
 
@@ -82,7 +82,7 @@ const executeGemini = async ({
     return {
       result: fallbackData,
       promptTelemetry: {
-        modelUsed: 'gemini-3.8-flash (Simulated Offline Fallback)',
+        modelUsed: 'Gemini Flash (simulated offline fallback)',
         systemInstruction,
         userPrompt,
         temperature,

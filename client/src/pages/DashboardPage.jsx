@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   BrainCircuit,
   Flame,
@@ -15,8 +15,12 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { TABS } from '../constants/navigation';
+import ReadinessSprintModal from '../components/ReadinessSprintModal';
+
+const AZ900_SOURCE_URL = 'https://learn.microsoft.com/credentials/certifications/resources/study-guides/az-900';
 
 export default function DashboardPage() {
+  const [isSprintOpen, setIsSprintOpen] = useState(false);
   const {
     dashboardData,
     loadingDashboard,
@@ -131,7 +135,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1b0824] border border-purple-500/30 text-xs font-bold text-white shadow-sm">
               <Target className="h-3.5 w-3.5 text-purple-400" />
               <span>
-                Exam Readiness: <strong className="text-purple-300">{overallScore}%</strong>{' '}
+                Readiness estimate: <strong className="text-purple-300">{overallScore}%</strong>{' '}
                 <span className="text-[11px] text-purple-200/70 font-normal">(Goal: 80%+)</span>
               </span>
             </div>
@@ -142,7 +146,7 @@ export default function DashboardPage() {
                 {metrics?.overallAccuracy ?? 64}% Accuracy
               </span>
               <span className="px-2.5 sm:px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 font-semibold">
-                {metrics?.totalAttempts ?? 11} Practiced
+                {metrics?.totalAttempts ?? 11} Answers
               </span>
               <span className="px-2.5 sm:px-3 py-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-500/30 font-semibold flex items-center gap-1">
                 <Flame className="h-3 w-3 text-amber-400" />
@@ -151,6 +155,14 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          <div className="flex flex-wrap items-center justify-end gap-2">
+          <button
+            onClick={() => setIsSprintOpen(true)}
+            className="flex items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-[#230832] shadow-md transition hover:bg-purple-100"
+          >
+            <Play className="h-3.5 w-3.5" />
+            Start 5-question check
+          </button>
           <button
             onClick={handleResetDemo}
             disabled={isResettingDemo}
@@ -158,14 +170,15 @@ export default function DashboardPage() {
             title="Reset demo data to initial state"
           >
             <RotateCcw className={`h-3.5 w-3.5 ${isResettingDemo ? 'animate-spin' : ''}`} />
-            <span>Reset Demo</span>
+            <span>Reset demo</span>
           </button>
+          </div>
         </div>
 
         {/* Section Title inside Plum Box (ABF "Experiences" Title Style) */}
         <div className="relative z-10 pt-6 pb-2">
           <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-            Topic Mastery
+            Your progress by topic
           </h2>
           <p className="text-xs text-purple-200/80 mt-0.5">
             Core domains for {activeSyllabus?.title || 'your syllabus'} • Click any poster to drill
@@ -218,7 +231,7 @@ export default function DashboardPage() {
                           {d.masteryPercentage}%
                         </span>
                         <span className="text-xs uppercase font-bold tracking-wider opacity-80">
-                          Mastery
+                          Progress
                         </span>
                       </div>
                     </div>
@@ -233,6 +246,15 @@ export default function DashboardPage() {
                       <h3 className="text-sm font-bold text-slate-900 group-hover:text-purple-900 transition mt-0.5 line-clamp-1">
                         {cleanTitle}
                       </h3>
+                      <a
+                        href={AZ900_SOURCE_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(event) => event.stopPropagation()}
+                        className="mt-1 inline-block text-[11px] font-semibold text-purple-700 underline underline-offset-2"
+                      >
+                        See official topic guide
+                      </a>
                     </div>
 
                     {/* Thin Progress Bar */}
@@ -256,13 +278,33 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      <section className="rounded-2xl border border-indigo-100 bg-indigo-50 p-5 sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-lg font-black text-slate-900">Why this score?</h2>
+            <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600">
+              Your {overallScore}% readiness estimate uses {metrics?.totalAttempts ?? 0} practice answers,
+              your accuracy, and the official domain weightings. It is a helpful guide, not a promise of a pass.
+            </p>
+          </div>
+          <a
+            href={AZ900_SOURCE_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="shrink-0 text-xs font-bold text-indigo-700 underline underline-offset-2"
+          >
+            View official skills outline
+          </a>
+        </div>
+      </section>
+
       {/* 2. BOTTOM SECTION: YOUR STUDY AGENDA TIMELINE (Just like "Your ABF Agenda"!) */}
       <section className="space-y-5">
         {/* Agenda Section Header */}
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Your Study Agenda
+              Your study plan
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
               Daily milestone plan focused on your weak exam areas
@@ -309,7 +351,7 @@ export default function DashboardPage() {
 
                       <div className="border-l border-purple-500/30 pl-4">
                         <span className="text-[10px] uppercase font-bold text-purple-300 tracking-wider block">
-                          Today's Priority Focus
+                          Today's focus
                         </span>
                         <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
                           {item.topic}
@@ -371,6 +413,7 @@ export default function DashboardPage() {
           })}
         </div>
       </section>
+      {isSprintOpen && <ReadinessSprintModal onClose={() => setIsSprintOpen(false)} />}
     </div>
   );
 }

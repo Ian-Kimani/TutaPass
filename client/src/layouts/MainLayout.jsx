@@ -116,7 +116,7 @@ export default function MainLayout({ children }) {
           {/* Active Exam Selector Dropdown */}
           <div className="space-y-1.5">
             <label className="text-[10px] uppercase font-bold text-purple-300/80 tracking-wider block">
-              Active Exam Syllabus
+              Choose your exam
             </label>
             <div className="relative">
               <select
@@ -196,9 +196,9 @@ export default function MainLayout({ children }) {
             </div>
             <div className="min-w-0">
               <div className="text-[10px] uppercase font-bold text-purple-300/80 tracking-wider">
-                Universal Engine
+                Add another exam
               </div>
-              <div className="text-xs font-bold text-white truncate">+ Add Any Exam</div>
+              <div className="text-xs font-bold text-white truncate">+ Add an exam</div>
             </div>
           </button>
 
@@ -216,13 +216,13 @@ export default function MainLayout({ children }) {
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] uppercase font-bold text-purple-300/80 tracking-wider">
-                  Judge Criteria
+                  For the judges
                 </span>
                 <span className="text-[9px] font-bold px-1.5 py-0.2 bg-purple-500/30 text-purple-200 rounded font-mono">
                   20%
                 </span>
               </div>
-              <div className="text-xs font-bold text-white truncate">Prompt X-Ray</div>
+              <div className="text-xs font-bold text-white truncate">See how the AI works</div>
             </div>
           </button>
 

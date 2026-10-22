@@ -80,7 +80,7 @@ export default function PromptXRayDrawer() {
                   <span>Model Engine</span>
                 </div>
                 <div className="font-semibold text-slate-100 mt-0.5 truncate">
-                  {promptTelemetry?.modelUsed || 'gemini-2.5-flash (High)'}
+                  {promptTelemetry?.modelUsed || 'Gemini Flash (not called yet)'}
                 </div>
               </div>
 
@@ -168,7 +168,7 @@ export default function PromptXRayDrawer() {
 
           {/* Footer */}
           <div className="p-4 bg-[#110419] border-t border-[#26133a] text-center text-xs text-purple-300/70">
-            Powered by Google Gemini (gemini-2.5-flash) • Power Learn Project Vibe Coding Hackathon
+            Powered by Google Gemini • Power Learn Project Vibe Coding Hackathon
           </div>
         </div>
       </div>
