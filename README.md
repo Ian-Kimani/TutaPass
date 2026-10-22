@@ -10,8 +10,8 @@ Beginners can memorise Azure service names and still struggle with questions tha
 
 ## The five-minute demo
 
-1. Open the dashboard and choose **Start 5-question check**.
-2. Answer a question and read the feedback. A wrong answer becomes a Mistake Card automatically.
+1. Open the dashboard and choose a topic from **Your progress by topic**.
+2. Answer a practice question and read the Distractor Autopsy feedback. A wrong answer becomes a Mistake Card automatically.
 3. Open **Mistake Cards** and review the card using English, an African real-life analogy, or optional Sheng.
 4. Return to the dashboard to see the updated readiness estimate and the reason behind the recommendation.
 5. Open **Prompt X-Ray** to inspect the live prompt, guardrails, output format, and whether Gemini or the offline fallback supplied the result.

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   BrainCircuit,
   Flame,
@@ -11,14 +11,11 @@ import {
   Calendar,
   Layers,
   ChevronRight,
-  Play,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { TABS } from '../constants/navigation';
-import ReadinessSprintModal from '../components/ReadinessSprintModal';
 
 export default function DashboardPage() {
-  const [isSprintOpen, setIsSprintOpen] = useState(false);
   const {
     dashboardData,
     loadingDashboard,
@@ -154,13 +151,6 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2">
-          <button
-            onClick={() => setIsSprintOpen(true)}
-            className="flex items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-[#230832] shadow-md transition hover:bg-purple-100"
-          >
-            <Play className="h-3.5 w-3.5" />
-            Start 5-question check
-          </button>
           <button
             onClick={handleResetDemo}
             disabled={isResettingDemo}
@@ -415,7 +405,6 @@ export default function DashboardPage() {
           })}
         </div>
       </section>
-      {isSprintOpen && <ReadinessSprintModal onClose={() => setIsSprintOpen(false)} />}
     </div>
   );
 }
