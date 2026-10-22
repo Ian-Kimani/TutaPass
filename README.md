@@ -67,6 +67,12 @@ npm run dev
 
 Set the server environment values required by your PostgreSQL connection and, optionally, `GEMINI_API_KEY`. Without the key, the seeded questions and explicit simulated fallback keep the demo usable.
 
+### Render demo reliability
+
+The backend exposes a lightweight health check at `/api/health`. Configure that path as the Render health check path. If the service is on Render's free instance, use an external uptime monitor or cron job to request the deployed `/api/health` URL periodically before the judging window; this reduces cold-start delay but does not replace the frontend fallback.
+
+The frontend also keeps the last successful dashboard and Mistake Card response in browser storage. On a cold start, it shows that saved study view immediately, sends a non-blocking health request, and replaces the cached values when the API responds.
+
 ## Current limitations
 
 - The demo uses a single learner profile (`demo-learner`) rather than full authentication.
