@@ -438,65 +438,6 @@ Return JSON matching:
     takeawayForExam: 'Remember: Always identify whether the exam question is testing for cost (CapEx vs OpEx), availability (Availability Zones), or access permissions (RBAC vs Policy).',
   };
 
-  /**
-   * Checks whether a learner can explain an answer, not just select it.
-   */
-  const evaluateTeachBack = async ({
-    syllabusTitle = 'Exam Preparation',
-    question,
-    scenario,
-    selectedAnswer,
-    correctAnswer,
-    explanation,
-  }) => {
-    const systemInstruction = `You are TutaPass Teach-Back Coach for "${syllabusTitle}".
-  Judge the learner's explanation kindly but precisely. Detect lucky guesses and misconceptions.
-  Return only valid JSON with:
-  {
-    "verdict": "understood" | "lucky_guess" | "needs_review",
-    "headline": "short human result",
-    "feedback": "one or two clear sentences",
-    "misconception": "specific misunderstanding or empty string",
-    "repairAction": "one practical next step"
-  }
-  Do not shame the learner. Do not claim certainty beyond the submitted explanation.`;
-
-    const userPrompt = `Question: ${question}
-  Scenario: ${scenario}
-  Learner selected: ${selectedAnswer}
-  Correct answer: ${correctAnswer}
-  Learner explanation: ${explanation}
-
-  If the selected answer is correct but the explanation contains a meaningful misconception, use "lucky_guess".
-  If the answer or reasoning is materially wrong, use "needs_review".`;
-
-    const normalized = explanation.toLowerCase();
-    const fallbackVerdict = selectedAnswer === correctAnswer
-      ? (normalized.length < 20 ? 'lucky_guess' : 'understood')
-      : 'needs_review';
-    const fallbackData = {
-      verdict: fallbackVerdict,
-      headline: fallbackVerdict === 'understood' ? 'You understand the idea.' : fallbackVerdict === 'lucky_guess' ? 'Correct answer, but let us check the reasoning.' : 'This idea needs another look.',
-      feedback: fallbackVerdict === 'understood'
-        ? 'Your answer and explanation point to the right rule.'
-        : `The correct answer is ${correctAnswer}. Review the distinction, then try the question again.`,
-      misconception: fallbackVerdict === 'understood' ? '' : 'The explanation does not yet show the key rule clearly.',
-      repairAction: 'Review the Mistake Card and explain the rule in one sentence.',
-    };
-
-    return executeGemini({
-      systemInstruction,
-      userPrompt,
-      temperature: 0.2,
-      techniquesUsed: [
-        'Reasoning-Over-Guessing Evaluation',
-        'Misconception Detection',
-        'Structured Learning Feedback',
-      ],
-      fallbackData,
-    });
-  };
-
   return executeGemini({
     systemInstruction,
     userPrompt,
@@ -507,6 +448,71 @@ Return JSON matching:
       'Mental Model Analogy Anchoring',
     ],
     fallbackData: fallbackExpl,
+  });
+};
+
+/**
+ * Checks whether a learner can explain an answer, not just select it.
+ */
+const evaluateTeachBack = async ({
+  syllabusTitle = 'Exam Preparation',
+  question,
+  scenario,
+  selectedAnswer,
+  correctAnswer,
+  explanation,
+}) => {
+  const systemInstruction = `You are TutaPass Teach-Back Coach for "${syllabusTitle}".
+Judge the learner's explanation kindly but precisely. Detect lucky guesses and misconceptions.
+Return only valid JSON with:
+{
+  "verdict": "understood" | "lucky_guess" | "needs_review",
+  "headline": "short human result",
+  "feedback": "one or two clear sentences",
+  "misconception": "specific misunderstanding or empty string",
+  "repairAction": "one practical next step"
+}
+Do not shame the learner. Do not claim certainty beyond the submitted explanation.`;
+
+  const userPrompt = `Question: ${question}
+Scenario: ${scenario}
+Learner selected: ${selectedAnswer}
+Correct answer: ${correctAnswer}
+Learner explanation: ${explanation}
+
+If the selected answer is correct but the explanation contains a meaningful misconception, use "lucky_guess".
+If the answer or reasoning is materially wrong, use "needs_review".`;
+
+  const normalized = explanation.toLowerCase();
+  const fallbackVerdict = selectedAnswer === correctAnswer
+    ? (normalized.length < 20 ? 'lucky_guess' : 'understood')
+    : 'needs_review';
+  const fallbackData = {
+    verdict: fallbackVerdict,
+    headline: fallbackVerdict === 'understood'
+      ? 'You understand the idea.'
+      : fallbackVerdict === 'lucky_guess'
+        ? 'Correct answer, but let us check the reasoning.'
+        : 'This idea needs another look.',
+    feedback: fallbackVerdict === 'understood'
+      ? 'Your answer and explanation point to the right rule.'
+      : `The correct answer is ${correctAnswer}. Review the distinction, then try the question again.`,
+    misconception: fallbackVerdict === 'understood'
+      ? ''
+      : 'The explanation does not yet show the key rule clearly.',
+    repairAction: 'Review the Mistake Card and explain the rule in one sentence.',
+  };
+
+  return executeGemini({
+    systemInstruction,
+    userPrompt,
+    temperature: 0.2,
+    techniquesUsed: [
+      'Reasoning-Over-Guessing Evaluation',
+      'Misconception Detection',
+      'Structured Learning Feedback',
+    ],
+    fallbackData,
   });
 };
 
