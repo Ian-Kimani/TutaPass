@@ -90,23 +90,23 @@ export default function FlashcardsPage() {
   return (
     <div className="space-y-8 pb-12">
       {/* Header */}
-      <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Review Your Mistake Cards</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Review Your Mistake Cards</h1>
           <p className="text-xs text-slate-400 mt-1 max-w-xl">
             Every question you miss in the Practice Quiz automatically shows up here until you master it.
           </p>
         </div>
 
         {/* Filter Toggle */}
-        <div className="flex items-center gap-2 bg-slate-950 p-1 rounded-2xl border border-slate-800 text-xs shrink-0">
+        <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-2xl border border-slate-800 text-xs w-full sm:w-auto">
           <button
             onClick={() => {
               setFilterDueOnly(true);
               setCurrentIndex(0);
               setIsFlipped(false);
             }}
-            className={`px-3 py-1.5 rounded-xl font-semibold transition ${
+            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl font-semibold transition text-center ${
               filterDueOnly
                 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
                 : 'text-slate-400 hover:text-slate-200'
@@ -120,7 +120,7 @@ export default function FlashcardsPage() {
               setCurrentIndex(0);
               setIsFlipped(false);
             }}
-            className={`px-3 py-1.5 rounded-xl font-semibold transition ${
+            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl font-semibold transition text-center ${
               !filterDueOnly
                 ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 shadow-sm'
                 : 'text-slate-400 hover:text-slate-200'
@@ -205,7 +205,7 @@ export default function FlashcardsPage() {
           </div>
 
           {/* Flashcard Main Surface */}
-          <div className="rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6 transition-all">
+          <div className="rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-4 sm:p-8 space-y-4 sm:space-y-6 transition-all">
             {/* Front Prompt */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">

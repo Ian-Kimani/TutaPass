@@ -95,33 +95,33 @@ export default function PlannerPage() {
   return (
     <div className="space-y-8 pb-10">
       {/* Header */}
-      <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Your Daily Study Plan</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Your Daily Study Plan</h1>
           <p className="text-xs text-slate-400 mt-1 max-w-xl">
             Tell us your exam date and daily free time—we'll build a simple checklist focused on your weak topics.
           </p>
         </div>
 
         {scheduleItems.length > 0 && (
-          <div className="flex items-center gap-4 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+          <div className="flex items-center justify-between sm:justify-start gap-4 bg-slate-950 p-3.5 sm:p-4 rounded-2xl border border-slate-800 w-full sm:w-auto">
             <div>
               <span className="text-[11px] text-slate-400 block font-medium">Plan Progress</span>
-              <span className="text-lg font-bold text-white">
+              <span className="text-base sm:text-lg font-bold text-white">
                 {completedCount} of {scheduleItems.length} Days Done
               </span>
             </div>
-            <div className="w-16 h-16 relative flex items-center justify-center font-bold text-sm text-purple-400">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 relative flex items-center justify-center font-bold text-sm text-purple-400">
               {progressPercent}%
             </div>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
         {/* Left Column: Plan Configuration Form */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-sm space-y-5">
+          <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-800 shadow-sm space-y-5">
             <div className="flex items-center gap-2 text-white font-bold text-sm pb-3 border-b border-slate-800">
               <Calendar className="h-4 w-4 text-purple-400" />
               <span>Set Your Schedule</span>
@@ -144,7 +144,7 @@ export default function PlannerPage() {
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                   Available Daily Study Time (Hours)
                 </label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {['0.5', '1.0', '1.5', '2.5'].map((hrs) => (
                     <button
                       key={hrs}

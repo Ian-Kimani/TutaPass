@@ -30,38 +30,38 @@ export default function PromptXRayDrawer() {
         onClick={() => setIsXRayOpen(false)}
       />
 
-      <div className="fixed inset-y-0 right-0 flex max-w-full pl-10">
+      <div className="fixed inset-y-0 right-0 flex max-w-full pl-0 sm:pl-10">
         <div className="w-screen max-w-2xl transform bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col">
           {/* Header */}
-          <div className="p-6 bg-slate-900/90 border-b border-slate-800/80 sticky top-0 z-10">
+          <div className="p-4 sm:p-6 bg-slate-900/90 border-b border-slate-800/80 sticky top-0 z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 shrink-0">
                   <Terminal className="h-5 w-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold text-white tracking-tight">
-                      Judge's Prompt X-Ray Drawer
+                    <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                      Judge's Prompt X-Ray
                     </h2>
-                    <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                    <span className="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
                       20% Criteria
                     </span>
                   </div>
                   <p className="text-xs text-slate-400">
-                    Live system prompt transparency & prompt engineering telemetry
+                    Live system prompt transparency & telemetry
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={handleCopy}
                   className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition text-xs flex items-center gap-1.5"
                   title="Copy Prompt"
                 >
                   {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
-                  <span>{copied ? 'Copied' : 'Copy'}</span>
+                  <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy'}</span>
                 </button>
                 <button
                   onClick={() => setIsXRayOpen(false)}
@@ -73,7 +73,7 @@ export default function PromptXRayDrawer() {
             </div>
 
             {/* Quick Metrics Bar */}
-            <div className="grid grid-cols-3 gap-2 mt-4 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3 sm:mt-4 text-xs">
               <div className="p-2.5 rounded-lg bg-slate-800/70 border border-slate-700/50">
                 <div className="text-slate-400 flex items-center gap-1">
                   <Cpu className="h-3.5 w-3.5 text-indigo-400" />
@@ -107,7 +107,7 @@ export default function PromptXRayDrawer() {
           </div>
 
           {/* Drawer Content */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
             {/* Judge Evaluation Note */}
             <div className="p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-xs leading-relaxed text-indigo-200 flex items-start gap-3">
               <Sparkles className="h-5 w-5 text-indigo-400 shrink-0 mt-0.5" />

@@ -122,15 +122,15 @@ export default function SyllabusImportModal() {
           onClick={() => setIsImportModalOpen(false)}
         />
 
-        <div className="relative w-full max-w-xl transform rounded-2xl bg-slate-900 border border-slate-800 p-6 text-left shadow-2xl transition-all">
+        <div className="relative w-full max-w-xl transform rounded-2xl bg-slate-900 border border-slate-800 p-4 sm:p-6 text-left shadow-2xl transition-all">
           {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-800">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center shrink-0">
                 <UploadCloud className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">Universal Syllabus Importer</h3>
+                <h3 className="text-base sm:text-lg font-bold text-white">Universal Syllabus Importer</h3>
                 <p className="text-xs text-slate-400">
                   Transform any exam curriculum into structured study modules with Gemini
                 </p>
@@ -138,7 +138,7 @@ export default function SyllabusImportModal() {
             </div>
             <button
               onClick={() => setIsImportModalOpen(false)}
-              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition"
+              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition shrink-0"
             >
               <X className="h-5 w-5" />
             </button>
@@ -197,7 +197,7 @@ export default function SyllabusImportModal() {
                 </div>
               </div>
               <textarea
-                rows={7}
+                rows={6}
                 placeholder="Paste domains, topic bullets, or exam outline text here..."
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
@@ -211,18 +211,18 @@ export default function SyllabusImportModal() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-2 sm:gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setIsImportModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition text-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition disabled:opacity-50"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition disabled:opacity-50"
               >
                 {loading ? (
                   <>

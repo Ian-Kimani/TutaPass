@@ -143,12 +143,12 @@ export default function QuizArenaPage() {
   return (
     <div className="space-y-6 pb-12">
       {/* Top Bar: Domain Filters & Generate More Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         {/* Domain Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none -mx-3 px-3 sm:mx-0 sm:px-0">
           <button
             onClick={() => setSelectedQuizDomainId(null)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border shrink-0 ${
               selectedQuizDomainId === null
                 ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm'
                 : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
@@ -160,7 +160,7 @@ export default function QuizArenaPage() {
             <button
               key={d.id}
               onClick={() => setSelectedQuizDomainId(d.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border shrink-0 ${
                 selectedQuizDomainId === d.id
                   ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm'
                   : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
@@ -175,7 +175,7 @@ export default function QuizArenaPage() {
         <button
           onClick={handleGenerateMore}
           disabled={generating}
-          className="px-3.5 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-semibold flex items-center gap-1.5 transition shrink-0 disabled:opacity-50"
+          className="w-full sm:w-auto justify-center px-3.5 py-2 sm:py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-semibold flex items-center gap-1.5 transition shrink-0 disabled:opacity-50"
         >
           {generating ? (
             <>
@@ -199,7 +199,7 @@ export default function QuizArenaPage() {
           </div>
         </div>
       ) : !currentQ ? (
-        <div className="p-12 rounded-3xl bg-slate-900 border border-slate-800 text-center text-slate-400">
+        <div className="p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-800 text-center text-slate-400">
           <BrainCircuit className="h-10 w-10 text-slate-600 mx-auto mb-3" />
           <p className="font-semibold text-slate-300">No questions available for this domain.</p>
           <button
@@ -211,17 +211,17 @@ export default function QuizArenaPage() {
           </button>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Question Card */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-6">
+          <div className="p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-4 sm:space-y-6">
             {/* Meta Header & Stepper */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 sm:pb-4 border-b border-slate-800">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <span className="px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold font-mono">
                   Q {currentIndex + 1} OF {questions.length}
                 </span>
-                <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs font-medium">
-                  {currentQ.topic_tag || 'Cloud Architecture'}
+                <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs font-medium truncate max-w-[150px] sm:max-w-none">
+                  {currentQ.topic_tag || 'Core Concepts'}
                 </span>
                 <span className="text-xs text-slate-400 font-mono hidden sm:inline">
                   {currentQ.domain_name}
@@ -347,10 +347,10 @@ export default function QuizArenaPage() {
               )}
 
               {/* The Distractor Autopsy Dissection Box */}
-              <div className="p-6 rounded-3xl bg-slate-900 border border-purple-500/30 space-y-4 shadow-xl">
+              <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900 border border-purple-500/30 space-y-4 shadow-xl">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
                   <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold">
+                    <div className="h-9 w-9 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold shrink-0">
                       💡
                     </div>
                     <div>
@@ -362,8 +362,8 @@ export default function QuizArenaPage() {
                   </div>
 
                   {/* Option Selector Tabs */}
-                  <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
-                    <span className="text-[10px] text-slate-500 px-2 font-mono">Inspect:</span>
+                  <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs self-start sm:self-auto overflow-x-auto max-w-full">
+                    <span className="text-[10px] text-slate-500 px-1.5 font-mono">Inspect:</span>
                     {currentQ.options?.map((opt) => (
                       <button
                         key={opt.id}
@@ -382,13 +382,13 @@ export default function QuizArenaPage() {
 
                 {/* Autopsy Details for selected option */}
                 {displayedAutopsyOption?.autopsy && (
-                  <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800/80 space-y-3 text-xs sm:text-sm">
-                    <div className="flex items-center justify-between border-b border-slate-800/60 pb-2">
+                  <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-950 border border-slate-800/80 space-y-3 text-xs sm:text-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-800/60 pb-2">
                       <span className="font-semibold text-slate-200">
                         Option {displayedAutopsyOption.id}: "{displayedAutopsyOption.text}"
                       </span>
                       <span
-                        className={`text-[11px] font-bold px-2 py-0.5 rounded ${
+                        className={`text-[11px] font-bold px-2 py-0.5 rounded self-start sm:self-auto ${
                           displayedAutopsyOption.is_correct
                             ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                             : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'

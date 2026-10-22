@@ -62,22 +62,22 @@ export default function MainLayout({ children }) {
 
       {/* Top Navbar */}
       <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 gap-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-4">
             {/* Left: Brand Logo + Compact Exam Selector */}
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <div
                 onClick={() => setActiveTab(TABS.DASHBOARD)}
-                className="flex items-center gap-2.5 cursor-pointer group"
+                className="flex items-center gap-2 cursor-pointer group"
               >
-                <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/30 group-hover:scale-105 transition-transform">
-                  <BrainCircuit className="h-5 w-5" />
+                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/30 group-hover:scale-105 transition-transform shrink-0">
+                  <BrainCircuit className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                <span className="text-lg font-black tracking-tight text-white">TutaPass</span>
+                <span className="text-base sm:text-lg font-black tracking-tight text-white hidden xs:inline">TutaPass</span>
               </div>
 
               {/* Compact Exam Selector Dropdown */}
-              <div className="flex items-center gap-1.5 pl-3 border-l border-slate-800">
+              <div className="flex items-center gap-1 sm:gap-1.5 pl-2 sm:pl-3 border-l border-slate-800">
                 <select
                   value={activeSyllabus?.id || ''}
                   onChange={(e) => {
@@ -87,7 +87,7 @@ export default function MainLayout({ children }) {
                       refreshDashboard(found.id);
                     }
                   }}
-                  className="bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-indigo-500 font-medium cursor-pointer max-w-[200px] truncate"
+                  className="bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-200 text-xs rounded-xl px-2 sm:px-2.5 py-1.5 focus:outline-none focus:border-indigo-500 font-medium cursor-pointer max-w-[110px] sm:max-w-[200px] truncate"
                 >
                   {syllabi.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -98,24 +98,24 @@ export default function MainLayout({ children }) {
 
                 <button
                   onClick={() => setIsImportModalOpen(true)}
-                  className="px-2 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-indigo-400 text-xs font-medium flex items-center gap-1 border border-slate-800 transition"
+                  className="p-1.5 sm:px-2 sm:py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-indigo-400 text-xs font-medium flex items-center gap-1 border border-slate-800 transition shrink-0"
                   title="Add any other certification or exam syllabus"
                 >
-                  <Plus className="h-3 w-3 text-indigo-400" />
+                  <Plus className="h-3.5 w-3.5 text-indigo-400" />
                   <span className="hidden sm:inline">Add Exam</span>
                 </button>
               </div>
             </div>
 
             {/* Right: Language Switcher, Subtle Reset, and Prompt X-Ray Button */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               {/* Language / Tone Pill Switcher */}
-              <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800/80 text-xs">
+              <div className="flex items-center bg-slate-950 p-0.5 sm:p-1 rounded-xl border border-slate-800/80 text-xs">
                 {TONE_MODES.map((mode) => (
                   <button
                     key={mode.id}
                     onClick={() => setLanguageMode(mode.id)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
+                    className={`px-1.5 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition ${
                       languageMode === mode.id
                         ? 'bg-indigo-600 text-white shadow-sm'
                         : 'text-slate-400 hover:text-slate-200'
@@ -131,33 +131,34 @@ export default function MainLayout({ children }) {
               <button
                 onClick={handleResetDemo}
                 disabled={isResettingDemo}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition disabled:opacity-50"
+                className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition disabled:opacity-50"
                 title="Reset demo data to initial state (~64% score)"
               >
-                <RotateCcw className={`h-4 w-4 ${isResettingDemo ? 'animate-spin text-amber-400' : ''}`} />
+                <RotateCcw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${isResettingDemo ? 'animate-spin text-amber-400' : ''}`} />
               </button>
 
               {/* Judge's Prompt X-Ray Button */}
               <button
                 onClick={() => setIsXRayOpen(true)}
-                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-purple-600/20 flex items-center gap-1.5 border border-purple-400/30 transition hover:scale-[1.02] active:scale-[0.98]"
+                className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-purple-600/20 flex items-center gap-1 sm:gap-1.5 border border-purple-400/30 transition hover:scale-[1.02] active:scale-[0.98] shrink-0"
               >
-                <Terminal className="h-3.5 w-3.5" />
-                <span>Prompt X-Ray</span>
-                <span className="px-1.5 py-0.2 text-[10px] bg-white/20 rounded font-mono">20%</span>
+                <Terminal className="h-3.5 w-3.5 shrink-0" />
+                <span className="hidden sm:inline">Prompt </span>
+                <span>X-Ray</span>
+                <span className="hidden sm:inline-block px-1.5 py-0.2 text-[10px] bg-white/20 rounded font-mono">20%</span>
               </button>
             </div>
           </div>
 
           {/* Navigation Tabs Bar */}
-          <div className="flex items-center space-x-1 sm:space-x-2 overflow-x-auto py-2.5 border-t border-slate-800/80 scrollbar-none">
+          <div className="flex items-center space-x-1 sm:space-x-2 overflow-x-auto py-2 sm:py-2.5 border-t border-slate-800/80 scrollbar-none -mx-3 px-3 sm:mx-0 sm:px-0">
             {TAB_ITEMS.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition shrink-0 ${
+                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition shrink-0 whitespace-nowrap ${
                     isActive
                       ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 shadow-sm'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -183,7 +184,7 @@ export default function MainLayout({ children }) {
       </header>
 
       {/* Main View Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {children}
       </main>
 
