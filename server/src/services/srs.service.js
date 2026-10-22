@@ -4,40 +4,59 @@
  */
 
 const QUALITY_MAP = {
-  forgot: 1, // Complete blackout
-  hard: 3,   // Remembered with severe effort
-  good: 4,   // Correct recall with slight hesitation
-  easy: 5,   // Instant, confident recall
+  // String ratings
+  forgot: 1,
+  again: 1,
+  hard: 3,
+  good: 4,
+  easy: 5,
+  // Numeric string & primitive inputs
+  '1': 1,
+  '2': 3,
+  '3': 4,
+  '4': 5,
+  '5': 5,
+  1: 1,
+  2: 3,
+  3: 4,
+  4: 5,
+  5: 5,
 };
 
 /**
  * Calculates new SM-2 parameters for a flashcard based on learner recall rating.
  * @param {Object} currentCard - Current card state { interval_days, repetition_count, ease_factor }
- * @param {'forgot'|'hard'|'good'|'easy'} rating - Learner feedback
+ * @param {string|number} rating - Learner feedback ('again'|'hard'|'good'|'easy'|1|2|3|4)
  * @returns {Object} Updated { interval_days, repetition_count, ease_factor, next_review_at }
  */
 const calculateNextReview = (currentCard, rating) => {
-  const normRating = String(rating).toLowerCase();
+  const normRating = typeof rating === 'string' ? rating.toLowerCase() : rating;
   const quality = QUALITY_MAP[normRating] || 3;
 
   let intervalDays = currentCard.interval_days || 1;
   let repCount = currentCard.repetition_count || 0;
   let easeFactor = parseFloat(currentCard.ease_factor) || 2.50;
 
+  let nextReviewAt;
+
   if (quality < 3) {
-    // Reset cycle on failure
+    // Failure (Again): Reset repetition count, set to re-review immediately / today
     repCount = 0;
     intervalDays = 1;
+    // Set to 5 minutes ago so it immediately stays in the "Due Today" list
+    nextReviewAt = new Date(Date.now() - 5 * 60 * 1000);
   } else {
     // Successful recall
     if (repCount === 0) {
-      intervalDays = 1;
+      intervalDays = quality === 5 ? 2 : 1;
     } else if (repCount === 1) {
-      intervalDays = 3;
+      intervalDays = quality === 5 ? 4 : 3;
     } else {
-      intervalDays = Math.round(intervalDays * easeFactor);
+      const multiplier = quality === 5 ? easeFactor * 1.3 : easeFactor;
+      intervalDays = Math.max(intervalDays + 1, Math.round(intervalDays * multiplier));
     }
     repCount += 1;
+    nextReviewAt = new Date(Date.now() + intervalDays * 24 * 60 * 60 * 1000);
   }
 
   // SM-2 Ease Factor calculation
@@ -46,9 +65,6 @@ const calculateNextReview = (currentCard, rating) => {
     easeFactor = 1.30;
   }
   easeFactor = Number(easeFactor.toFixed(2));
-
-  // Compute next review date
-  const nextReviewAt = new Date(Date.now() + intervalDays * 24 * 60 * 60 * 1000);
 
   return {
     interval_days: intervalDays,
@@ -83,7 +99,7 @@ const createOrUpdateWeakSpotFlashcard = async (db, { userId, questionId }) => {
 
   const frontPrompt = `${question.scenario}\n\n👉 Focus: ${question.question}`;
   const backExplanation = `✅ Correct: ${correctOption.text}\n\n💡 Why: ${
-    correctOption.autopsy?.right_scenario || 'Master this fundamental Azure concept.'
+    correctOption.autopsy?.right_scenario || 'Master this fundamental exam concept.'
   }`;
 
   // Check if a flashcard for this topic_tag already exists for the user

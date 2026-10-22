@@ -48,12 +48,25 @@ const getFlashcards = asyncHandler(async (req, res) => {
     const isDue = new Date(card.next_review_at) <= now;
     if (isDue) dueCount += 1;
 
+    let contextNotes = {};
+    if (typeof card.context_notes === 'string') {
+      try {
+        contextNotes = JSON.parse(card.context_notes);
+      } catch {
+        contextNotes = {};
+      }
+    } else if (card.context_notes) {
+      contextNotes = card.context_notes;
+    }
+
     return {
       ...card,
-      context_notes:
-        typeof card.context_notes === 'string'
-          ? JSON.parse(card.context_notes)
-          : card.context_notes,
+      front: card.front_prompt,
+      front_prompt: card.front_prompt,
+      back: card.back_explanation,
+      back_explanation: card.back_explanation,
+      context_notes: contextNotes,
+      cultural_analogy: contextNotes,
       isDue,
     };
   });
@@ -66,14 +79,21 @@ const getFlashcards = asyncHandler(async (req, res) => {
 });
 
 /**
- * Record a flashcard review rating ('forgot', 'hard', 'good', 'easy')
+ * Record a flashcard review rating ('again', 'hard', 'good', 'easy', or 1-4)
  * and update its SM-2 spaced repetition interval.
  */
 const reviewFlashcard = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { rating } = req.body;
 
-  const cardRes = await db.query('SELECT * FROM flashcards WHERE id = $1;', [id]);
+  const cardRes = await db.query(
+    `SELECT f.*, d.name AS domain_name 
+     FROM flashcards f
+     JOIN domains d ON f.domain_id = d.id
+     WHERE f.id = $1;`,
+    [id]
+  );
+
   if (cardRes.rows.length === 0) {
     return sendError(res, `Flashcard ID ${id} not found.`, 404);
   }
@@ -102,14 +122,30 @@ const reviewFlashcard = asyncHandler(async (req, res) => {
 
   const updated = updateRes.rows[0];
 
+  let contextNotes = {};
+  if (typeof updated.context_notes === 'string') {
+    try {
+      contextNotes = JSON.parse(updated.context_notes);
+    } catch {
+      contextNotes = {};
+    }
+  } else if (updated.context_notes) {
+    contextNotes = updated.context_notes;
+  }
+
+  const isDue = new Date(updated.next_review_at) <= new Date();
+
   return sendSuccess(res, {
     flashcard: {
       ...updated,
-      context_notes:
-        typeof updated.context_notes === 'string'
-          ? JSON.parse(updated.context_notes)
-          : updated.context_notes,
-      isDue: new Date(updated.next_review_at) <= new Date(),
+      domain_name: currentCard.domain_name,
+      front: updated.front_prompt,
+      front_prompt: updated.front_prompt,
+      back: updated.back_explanation,
+      back_explanation: updated.back_explanation,
+      context_notes: contextNotes,
+      cultural_analogy: contextNotes,
+      isDue,
     },
     ratingApplied: rating,
     nextReviewInDays: nextParams.interval_days,

@@ -52,7 +52,8 @@ export default function FlashcardsPage() {
   }, [activeSyllabus?.id]);
 
   const displayedCards = filterDueOnly ? cards.filter((c) => c.isDue) : cards;
-  const currentCard = displayedCards[currentIndex] || null;
+  const safeIndex = displayedCards.length > 0 ? Math.min(currentIndex, displayedCards.length - 1) : 0;
+  const currentCard = displayedCards[safeIndex] || null;
 
   const handleRating = async (rating) => {
     if (!currentCard || submittingRating) return;
@@ -61,21 +62,26 @@ export default function FlashcardsPage() {
       setSubmittingRating(true);
       const res = await apiService.reviewFlashcard(currentCard.id, rating);
 
+      const nextDays = res?.nextReviewInDays || 1;
+      const isStillDue = res?.flashcard?.isDue;
+
       showToast(
-        `Card updated via SM-2! Next review in ${res?.nextReviewInDays || 1} day(s).`,
+        isStillDue
+          ? 'Card marked for re-drill today (SM-2 reset)!'
+          : `Great retention! Next review in ${nextDays} day(s).`,
         'success'
       );
 
       // Refresh dashboard readiness in background
       await refreshDashboard();
 
-      // Remove or advance card
+      // Update card in state
       setCards((prev) =>
         prev.map((c) => (c.id === currentCard.id ? res.flashcard : c))
       );
 
       setIsFlipped(false);
-      if (currentIndex >= displayedCards.length - 1) {
+      if (safeIndex >= displayedCards.length - 1) {
         setCurrentIndex(0);
       }
     } catch (err) {
@@ -86,6 +92,20 @@ export default function FlashcardsPage() {
   };
 
   const dueCount = cards.filter((c) => c.isDue).length;
+
+  // Extract content safely with fallbacks
+  const frontPrompt = currentCard?.front || currentCard?.front_prompt || '';
+  const backExplanation = currentCard?.back || currentCard?.back_explanation || '';
+  const domainTitle = currentCard?.domain_name || 'Exam Topic';
+  const topicTag = currentCard?.topic_tag || 'Weak Spot Concept';
+  const notes = currentCard?.cultural_analogy || currentCard?.context_notes || {};
+  const analogy =
+    notes[languageMode] ||
+    notes.african_analogy ||
+    notes.african_context ||
+    notes.sheng ||
+    notes.standard ||
+    null;
 
   return (
     <div className="space-y-8 pb-16">
@@ -155,39 +175,51 @@ export default function FlashcardsPage() {
               ? 'No mistake cards due today! Great work retaining your weak spots.'
               : 'No mistake cards created yet. Miss a question in the Practice Quiz to generate cards.'}
           </p>
-          <button
-            onClick={() => setActiveTab(TABS.QUIZ)}
-            className="mt-4 px-5 py-2.5 rounded-full bg-[#230832] text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-md hover:bg-purple-900 transition"
-          >
-            <span>Practice Quiz Arena</span>
-            <ArrowRight className="h-4 w-4" />
-          </button>
+          <div className="flex items-center justify-center gap-3 pt-2">
+            {cards.length > 0 && filterDueOnly && (
+              <button
+                onClick={() => setFilterDueOnly(false)}
+                className="px-4 py-2 rounded-full border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition"
+              >
+                Browse All ({cards.length}) Cards
+              </button>
+            )}
+            <button
+              onClick={() => setActiveTab(TABS.QUIZ)}
+              className="px-5 py-2.5 rounded-full bg-[#230832] text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-md hover:bg-purple-900 transition"
+            >
+              <span>Practice Quiz Arena</span>
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       ) : (
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Card Counter & Progress Stepper */}
           <div className="flex items-center justify-between text-xs font-bold text-slate-500 px-2">
             <span className="px-3 py-1 rounded-full bg-slate-200/70 text-slate-800">
-              CARD {currentIndex + 1} OF {displayedCards.length}
+              CARD {safeIndex + 1} OF {displayedCards.length}
             </span>
             <div className="flex items-center gap-2">
               <button
-                disabled={currentIndex === 0}
+                disabled={safeIndex === 0}
                 onClick={() => {
-                  setCurrentIndex((i) => i - 1);
+                  setCurrentIndex((i) => Math.max(0, i - 1));
                   setIsFlipped(false);
                 }}
                 className="p-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-40 text-slate-700 transition"
+                title="Previous card"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
-                disabled={currentIndex === displayedCards.length - 1}
+                disabled={safeIndex >= displayedCards.length - 1}
                 onClick={() => {
-                  setCurrentIndex((i) => i + 1);
+                  setCurrentIndex((i) => Math.min(displayedCards.length - 1, i + 1));
                   setIsFlipped(false);
                 }}
                 className="p-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-40 text-slate-700 transition"
+                title="Next card"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -197,68 +229,70 @@ export default function FlashcardsPage() {
           {/* Flashcard Surface (Interactive Flip) */}
           <div
             onClick={() => setIsFlipped((prev) => !prev)}
-            className={`min-h-[340px] p-6 sm:p-10 rounded-3xl border cursor-pointer transition-all duration-300 flex flex-col justify-between select-none shadow-sm hover:shadow-md ${
+            className={`min-h-[360px] p-6 sm:p-10 rounded-3xl border cursor-pointer transition-all duration-300 flex flex-col justify-between select-none shadow-sm hover:shadow-md ${
               isFlipped
                 ? 'bg-gradient-to-br from-[#230832] via-[#2d0b3e] to-[#170522] text-white border-purple-500/30'
                 : 'bg-white text-slate-900 border-slate-200/90'
             }`}
           >
             {/* Top Card Meta */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <span
-                className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full ${
+                className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full truncate max-w-[240px] sm:max-w-xs ${
                   isFlipped
                     ? 'bg-purple-900/60 text-purple-200 border border-purple-500/30'
                     : 'bg-purple-100 text-purple-900'
                 }`}
               >
-                {currentCard.domain_name || 'Exam Topic'}
+                {domainTitle}
               </span>
 
               <span
-                className={`text-xs font-semibold flex items-center gap-1.5 ${
+                className={`text-xs font-semibold flex items-center gap-1.5 shrink-0 ${
                   isFlipped ? 'text-purple-300' : 'text-slate-400'
                 }`}
               >
                 <RotateCw className="h-3.5 w-3.5" />
-                <span>{isFlipped ? 'Click to show front' : 'Click to reveal explanation'}</span>
+                <span>{isFlipped ? 'Show Question' : 'Reveal Answer'}</span>
               </span>
             </div>
 
             {/* Card Content Area */}
-            <div className="py-8">
+            <div className="py-6 sm:py-8">
               {!isFlipped ? (
                 /* FRONT: Concept / Question that was missed */
                 <div className="space-y-4">
-                  <span className="text-[10px] uppercase font-black tracking-wider text-purple-700 block">
-                    Weak Spot Concept
-                  </span>
-                  <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
-                    {currentCard.front}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase font-black tracking-wider text-purple-700 bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-full">
+                      {topicTag}
+                    </span>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-black text-slate-900 leading-snug whitespace-pre-line">
+                    {frontPrompt || 'What fundamental architecture rule applies here?'}
                   </h3>
                   <p className="text-xs text-slate-500 mt-2">
-                    Think through the architecture rule or formula, then tap to test your memory.
+                    Think through the core concept, then tap the card to check your answer and review the autopsy explanation.
                   </p>
                 </div>
               ) : (
                 /* BACK: Clarification and Distractor Autopsy */
                 <div className="space-y-4 animate-in fade-in duration-200">
-                  <span className="text-[10px] uppercase font-black tracking-wider text-emerald-400 block">
-                    Core Rule & Resolution
-                  </span>
-                  <p className="text-base sm:text-lg font-bold text-white leading-relaxed whitespace-pre-line">
-                    {currentCard.back}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase font-black tracking-wider text-emerald-300 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                      Core Rule & Autopsy Resolution
+                    </span>
+                  </div>
+                  <p className="text-sm sm:text-base font-bold text-white leading-relaxed whitespace-pre-line">
+                    {backExplanation || 'Review the correct answer choices in the quiz breakdown.'}
                   </p>
 
                   {/* Cultural Mode Translation */}
-                  {currentCard.cultural_analogy && (
+                  {analogy && (
                     <div className="mt-4 p-4 rounded-2xl bg-white/10 border border-white/10 text-xs text-purple-200 leading-relaxed">
                       <strong className="text-white font-bold block mb-1">
-                        African Life Analogy ({languageMode}):
+                        African Everyday Analogy ({languageMode}):
                       </strong>
-                      {currentCard.cultural_analogy[languageMode] ||
-                        currentCard.cultural_analogy.african_context ||
-                        currentCard.cultural_analogy.standard}
+                      {analogy}
                     </div>
                   )}
                 </div>
@@ -267,12 +301,13 @@ export default function FlashcardsPage() {
 
             {/* Bottom Card Footer */}
             <div
-              className={`pt-4 border-t flex items-center justify-between text-[11px] ${
+              className={`pt-4 border-t flex items-center justify-between text-[11px] font-medium ${
                 isFlipped ? 'border-white/10 text-purple-300' : 'border-slate-100 text-slate-400'
               }`}
             >
-              <span>Repetition Interval: {currentCard.interval_days || 1} day(s)</span>
-              <span>SM-2 Factor: {currentCard.ease_factor || 2.5}</span>
+              <span>Interval: {currentCard?.interval_days || 1} day(s)</span>
+              <span>Ease: {currentCard?.ease_factor || '2.50'}</span>
+              <span>Repetitions: {currentCard?.repetition_count || 0}</span>
             </div>
           </div>
 
@@ -286,17 +321,17 @@ export default function FlashcardsPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 <button
                   disabled={submittingRating}
-                  onClick={() => handleRating(1)}
-                  className="p-3 rounded-2xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-900 text-center font-bold text-xs transition shadow-sm"
+                  onClick={() => handleRating('again')}
+                  className="p-3 rounded-2xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-900 text-center font-bold text-xs transition shadow-sm hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <span className="block text-sm">❌ Again</span>
-                  <span className="text-[10px] text-rose-600 font-normal">Reset to Day 1</span>
+                  <span className="text-[10px] text-rose-600 font-normal">Re-drill today</span>
                 </button>
 
                 <button
                   disabled={submittingRating}
-                  onClick={() => handleRating(2)}
-                  className="p-3 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-center font-bold text-xs transition shadow-sm"
+                  onClick={() => handleRating('hard')}
+                  className="p-3 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-center font-bold text-xs transition shadow-sm hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <span className="block text-sm">⚠️ Hard</span>
                   <span className="text-[10px] text-amber-700 font-normal">Review in 1 day</span>
@@ -304,8 +339,8 @@ export default function FlashcardsPage() {
 
                 <button
                   disabled={submittingRating}
-                  onClick={() => handleRating(3)}
-                  className="p-3 rounded-2xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-center font-bold text-xs transition shadow-sm"
+                  onClick={() => handleRating('good')}
+                  className="p-3 rounded-2xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-center font-bold text-xs transition shadow-sm hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <span className="block text-sm">👍 Good</span>
                   <span className="text-[10px] text-blue-700 font-normal">Review in 3 days</span>
@@ -313,8 +348,8 @@ export default function FlashcardsPage() {
 
                 <button
                   disabled={submittingRating}
-                  onClick={() => handleRating(4)}
-                  className="p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-center font-bold text-xs transition shadow-sm"
+                  onClick={() => handleRating('easy')}
+                  className="p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-center font-bold text-xs transition shadow-sm hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <span className="block text-sm">🎯 Easy</span>
                   <span className="text-[10px] text-emerald-700 font-normal">Review in 6+ days</span>
