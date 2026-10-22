@@ -11,6 +11,9 @@ import {
   Calendar,
   Layers,
   ChevronRight,
+  Map,
+  CheckCircle,
+  Play,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { TABS } from '../constants/navigation';
@@ -24,12 +27,35 @@ export default function DashboardPage() {
     activeSyllabus,
     handleResetDemo,
     isResettingDemo,
+    flashcards,
   } = useApp();
 
   const readiness = dashboardData?.readiness;
   const metrics = readiness?.metrics;
   const overallScore = readiness?.overallReadiness ?? 64;
   const domains = readiness?.domains || [];
+  const [hasStarted, setHasStarted] = React.useState(() => (
+    window.localStorage.getItem('tutapass-first-session-started') === 'true'
+  ));
+
+  const weakestDomain = [...domains].sort(
+    (a, b) => (a.masteryPercentage || 0) - (b.masteryPercentage || 0)
+  )[0];
+  const reviewedCards = flashcards.filter((card) => (card.repetition_count || 0) > 0).length;
+  const improvement = Math.max(
+    0,
+    Math.round((metrics?.overallAccuracy || 0) - 50)
+  );
+  const progressStory = metrics?.totalAttempts
+    ? `You have answered ${metrics.totalAttempts} questions and turned ${reviewedCards} mistake ${reviewedCards === 1 ? 'card' : 'cards'} into review practice.`
+    : 'Your first answer gives TutaPass a starting point for a personal study path.';
+
+  const startFirstSession = () => {
+    window.localStorage.setItem('tutapass-first-session-started', 'true');
+    setHasStarted(true);
+    if (weakestDomain) handlePracticeDomain(weakestDomain.id);
+    else setActiveTab(TABS.QUIZ);
+  };
 
   const handlePracticeDomain = (domainId) => {
     setSelectedQuizDomainId(domainId);
@@ -119,6 +145,33 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-10 pb-16">
+      {!hasStarted && (
+        <section className="rounded-3xl border border-purple-200 bg-white p-5 shadow-sm sm:p-7" aria-labelledby="first-session-title">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-2xl">
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-purple-100 px-3 py-1 text-[11px] font-bold text-purple-800">
+                <Sparkles className="h-3.5 w-3.5" /> Your first study session
+              </div>
+              <h1 id="first-session-title" className="text-2xl font-black tracking-tight text-slate-900">
+                Learn the idea, not just the answer.
+              </h1>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                Take one short quiz, explain one answer in your own words, then get a Mistake Card for anything that needs another look.
+              </p>
+              <p className="mt-3 text-xs font-semibold text-slate-500">
+                1. Answer <span className="mx-1 text-purple-400">→</span> 2. Explain <span className="mx-1 text-purple-400">→</span> 3. Improve
+              </p>
+            </div>
+            <button
+              onClick={startFirstSession}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#230832] px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-purple-900 focus:outline-none focus:ring-4 focus:ring-purple-200"
+            >
+              <Play className="h-4 w-4 fill-current" /> Start my first session
+            </button>
+          </div>
+        </section>
+      )}
+
       {/* 1. TOP HERO CONTAINER (The ABF Plum Stage with 3 White Poster Cards) */}
       <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#4a1259] via-[#2d0b38] to-[#180521] p-4 sm:p-8 text-white shadow-xl">
         {/* Subtle decorative glow */}
@@ -287,6 +340,67 @@ export default function DashboardPage() {
               Open official source
             </a>
           )}
+        </div>
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Map className="h-5 w-5 text-purple-700" />
+                <h2 className="text-lg font-black text-slate-900">Your misconception map</h2>
+              </div>
+              <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                These are the ideas that need the most attention. TutaPass turns each one into a small, actionable next step.
+              </p>
+            </div>
+            <button
+              onClick={() => setActiveTab(TABS.FLASHCARDS)}
+              className="shrink-0 text-xs font-bold text-purple-700 underline underline-offset-2"
+            >
+              Review cards
+            </button>
+          </div>
+          <div className="mt-5 space-y-3">
+            {domains.slice().sort((a, b) => (a.masteryPercentage || 0) - (b.masteryPercentage || 0)).slice(0, 3).map((domain, index) => (
+              <button
+                key={domain.id}
+                onClick={() => handlePracticeDomain(domain.id)}
+                className="flex w-full items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3 text-left transition hover:border-purple-200 hover:bg-purple-50"
+                aria-label={`Practice ${domain.name}`}
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-black text-purple-800">
+                  {index + 1}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-bold text-slate-800">{domain.name.replace(/^Describe\s+/i, '')}</span>
+                  <span className="block text-xs text-slate-500">
+                    {domain.masteryPercentage || 0}% mastery • {domain.cardsDue || 0} card{domain.cardsDue === 1 ? '' : 's'} due
+                  </span>
+                </span>
+                <ChevronRight className="h-4 w-4 text-slate-400" />
+              </button>
+            ))}
+            {domains.length === 0 && (
+              <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">Answer a practice question to reveal your first weak spot.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-[#230832] p-5 text-white shadow-sm sm:p-6">
+          <div className="flex items-center gap-2 text-purple-200">
+            <TrendingUp className="h-5 w-5" />
+            <span className="text-xs font-bold uppercase tracking-wider">Your progress story</span>
+          </div>
+          <p className="mt-5 text-xl font-black leading-tight">
+            {improvement > 0 ? `You are ${improvement}% above your starting point.` : 'Every answer builds your starting point.'}
+          </p>
+          <p className="mt-3 text-sm leading-relaxed text-purple-200">{progressStory}</p>
+          <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-emerald-300">
+            <CheckCircle className="h-4 w-4" />
+            Answer → Explain → Review → Improve
+          </div>
         </div>
       </section>
 

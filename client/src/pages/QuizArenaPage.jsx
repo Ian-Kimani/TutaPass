@@ -487,6 +487,9 @@ export default function QuizArenaPage() {
                       <p className="mt-1 text-xs leading-relaxed text-indigo-800">
                         Explain why your answer is right or wrong in your own words. TutaPass checks your reasoning, not just your guess.
                       </p>
+                      <p className="mt-2 text-[11px] font-semibold text-indigo-700">
+                        AI feedback is a study aid. Check important facts against the official source for your track.
+                      </p>
                     </div>
                   </div>
                   <form onSubmit={handleTeachBack} className="mt-4 space-y-2">
