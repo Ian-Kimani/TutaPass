@@ -122,23 +122,23 @@ export default function SyllabusImportModal() {
           onClick={() => setIsImportModalOpen(false)}
         />
 
-        <div className="relative w-full max-w-xl transform rounded-2xl bg-slate-900 border border-slate-800 p-4 sm:p-6 text-left shadow-2xl transition-all">
+        <div className="relative w-full max-w-xl transform rounded-3xl bg-[#150722] border border-[#34144e] p-4 sm:p-6 text-left shadow-2xl transition-all">
           {/* Header */}
-          <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-800">
+          <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-[#2e1246]">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center shrink-0">
+              <div className="h-10 w-10 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center shrink-0">
                 <UploadCloud className="h-5 w-5" />
               </div>
               <div>
                 <h3 className="text-base sm:text-lg font-bold text-white">Universal Syllabus Importer</h3>
-                <p className="text-xs text-slate-400">
-                  Transform any exam curriculum into structured study modules with Gemini
+                <p className="text-xs text-purple-200/70">
+                  Transform any curriculum outline into structured study modules with Gemini
                 </p>
               </div>
             </div>
             <button
               onClick={() => setIsImportModalOpen(false)}
-              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition shrink-0"
+              className="p-1.5 rounded-lg hover:bg-[#250d36] text-purple-300 hover:text-white transition shrink-0"
             >
               <X className="h-5 w-5" />
             </button>
@@ -153,7 +153,7 @@ export default function SyllabusImportModal() {
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-semibold text-purple-200 uppercase tracking-wider mb-1">
                 Curriculum / Certification Title (Optional)
               </label>
               <input
@@ -161,36 +161,36 @@ export default function SyllabusImportModal() {
                 placeholder="e.g., AWS Cloud Practitioner, CompTIA Security+, KCSE Math"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-indigo-500 transition"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#10031a] border border-[#2e1246] text-slate-100 text-sm focus:outline-none focus:border-purple-500 transition"
               />
             </div>
 
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1.5">
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <label className="block text-xs font-semibold text-purple-200 uppercase tracking-wider">
                   Raw Syllabus Text or Topics Outline
                 </label>
                 {/* 1-Click Samples */}
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] text-slate-500 font-medium">1-Click:</span>
+                  <span className="text-[10px] text-purple-400 font-medium">1-Click:</span>
                   <button
                     type="button"
                     onClick={handlePreloadAws}
-                    className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-slate-700 font-medium transition"
+                    className="text-[11px] px-2 py-0.5 rounded-md bg-[#250d36] hover:bg-[#341148] text-purple-200 border border-purple-500/30 font-medium transition"
                   >
                     AWS Sample
                   </button>
                   <button
                     type="button"
                     onClick={handlePreloadKcse}
-                    className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700 font-medium transition"
+                    className="text-[11px] px-2 py-0.5 rounded-md bg-[#250d36] hover:bg-[#341148] text-purple-200 border border-purple-500/30 font-medium transition"
                   >
                     KCSE Math
                   </button>
                   <button
                     type="button"
                     onClick={handlePreloadSecurityPlus}
-                    className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 font-medium transition"
+                    className="text-[11px] px-2 py-0.5 rounded-md bg-[#250d36] hover:bg-[#341148] text-purple-200 border border-purple-500/30 font-medium transition"
                   >
                     CompTIA Sec+
                   </button>
@@ -201,12 +201,12 @@ export default function SyllabusImportModal() {
                 placeholder="Paste domains, topic bullets, or exam outline text here..."
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs font-mono focus:outline-none focus:border-indigo-500 transition"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#10031a] border border-[#2e1246] text-slate-100 text-xs font-mono focus:outline-none focus:border-purple-500 transition"
               />
             </div>
 
             {/* AI Parsing Explanation */}
-            <div className="p-3 rounded-xl bg-slate-800/40 border border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+            <div className="p-3 rounded-xl bg-[#1d0a2d] border border-purple-500/20 text-[11px] text-purple-200/80 leading-relaxed">
               💡 <strong>Automatic Quiz Generation:</strong> Gemini analyzes the outline, detects weight percentages, creates your syllabus track, and automatically synthesizes starter scenario questions with Distractor Autopsies!
             </div>
 
@@ -215,14 +215,14 @@ export default function SyllabusImportModal() {
               <button
                 type="button"
                 onClick={() => setIsImportModalOpen(false)}
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition text-center"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-purple-300 hover:text-white hover:bg-[#250d36] transition text-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition disabled:opacity-50"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-900/50 flex items-center justify-center gap-2 transition disabled:opacity-50"
               >
                 {loading ? (
                   <>

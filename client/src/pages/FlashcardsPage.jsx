@@ -88,28 +88,34 @@ export default function FlashcardsPage() {
   const dueCount = cards.filter((c) => c.isDue).length;
 
   return (
-    <div className="space-y-8 pb-12">
-      {/* Header */}
-      <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 pb-16">
+      {/* Header Banner (Elevated White Card with ABF Style) */}
+      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white">Review Your Mistake Cards</h1>
-          <p className="text-xs text-slate-400 mt-1 max-w-xl">
-            Every question you miss in the Practice Quiz automatically shows up here until you master it.
+          <span className="text-[10px] uppercase font-bold text-amber-600 tracking-wider block mb-1">
+            Spaced Repetition Memory Engine (SM-2)
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Review Your Mistake Cards
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
+            Every scenario question you miss in the Practice Quiz automatically creates a weak-spot
+            flashcard here until you master it.
           </p>
         </div>
 
-        {/* Filter Toggle */}
-        <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-2xl border border-slate-800 text-xs w-full sm:w-auto">
+        {/* Filter Toggle Pills (ABF Pill Style) */}
+        <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-full text-xs shrink-0 self-start md:self-auto">
           <button
             onClick={() => {
               setFilterDueOnly(true);
               setCurrentIndex(0);
               setIsFlipped(false);
             }}
-            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl font-semibold transition text-center ${
+            className={`px-4 py-2 rounded-full font-bold transition text-center ${
               filterDueOnly
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#230832] text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Due Today ({dueCount})
@@ -120,10 +126,10 @@ export default function FlashcardsPage() {
               setCurrentIndex(0);
               setIsFlipped(false);
             }}
-            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl font-semibold transition text-center ${
+            className={`px-4 py-2 rounded-full font-bold transition text-center ${
               !filterDueOnly
-                ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#230832] text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             All Cards ({cards.length})
@@ -133,53 +139,37 @@ export default function FlashcardsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center min-h-[40vh]">
-          <div className="flex flex-col items-center gap-3 text-slate-400 text-sm">
-            <div className="h-8 w-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <div className="flex flex-col items-center gap-3 text-slate-500 text-sm">
+            <div className="h-8 w-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
             <span>Loading SM-2 spaced repetition deck...</span>
           </div>
         </div>
       ) : displayedCards.length === 0 ? (
-        <div className="p-12 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-4 max-w-xl mx-auto shadow-xl">
-          <div className="h-16 w-16 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
-            <CheckCircle2 className="h-8 w-8" />
+        <div className="p-8 sm:p-12 rounded-3xl bg-white border border-slate-200/80 text-center text-slate-500 shadow-sm space-y-3">
+          <div className="h-12 w-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+            <CheckCircle2 className="h-6 w-6" />
           </div>
-          <div>
-            <h3 className="text-xl font-bold text-white">All Due Flashcards Cleared!</h3>
-            <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
-              Your memory retention is optimal. If you make any mistakes during practice quizzes, TutaPass will automatically generate new weak-spot cards here.
-            </p>
-          </div>
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-            <button
-              onClick={() => setActiveTab(TABS.QUIZ)}
-              className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition"
-            >
-              <span>Back to Quiz Arena</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-            {cards.length > 0 && filterDueOnly && (
-              <button
-                onClick={() => setFilterDueOnly(false)}
-                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700/60 transition"
-              >
-                Review All {cards.length} Cards
-              </button>
-            )}
-          </div>
+          <h3 className="text-lg font-black text-slate-900">All Caught Up!</h3>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
+            {filterDueOnly
+              ? 'No mistake cards due today! Great work retaining your weak spots.'
+              : 'No mistake cards created yet. Miss a question in the Practice Quiz to generate cards.'}
+          </p>
+          <button
+            onClick={() => setActiveTab(TABS.QUIZ)}
+            className="mt-4 px-5 py-2.5 rounded-full bg-[#230832] text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-md hover:bg-purple-900 transition"
+          >
+            <span>Practice Quiz Arena</span>
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
       ) : (
         <div className="max-w-2xl mx-auto space-y-6">
-          {/* Card Stepper Header */}
-          <div className="flex items-center justify-between text-xs text-slate-400 px-2">
-            <div className="flex items-center gap-2">
-              <span className="font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-                CARD {currentIndex + 1} OF {displayedCards.length}
-              </span>
-              <span className="text-slate-300 font-medium">
-                {currentCard.topic_tag || 'Cloud Architecture'}
-              </span>
-            </div>
-
+          {/* Card Counter & Progress Stepper */}
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 px-2">
+            <span className="px-3 py-1 rounded-full bg-slate-200/70 text-slate-800">
+              CARD {currentIndex + 1} OF {displayedCards.length}
+            </span>
             <div className="flex items-center gap-2">
               <button
                 disabled={currentIndex === 0}
@@ -187,7 +177,7 @@ export default function FlashcardsPage() {
                   setCurrentIndex((i) => i - 1);
                   setIsFlipped(false);
                 }}
-                className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 transition"
+                className="p-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-40 text-slate-700 transition"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -197,135 +187,141 @@ export default function FlashcardsPage() {
                   setCurrentIndex((i) => i + 1);
                   setIsFlipped(false);
                 }}
-                className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 transition"
+                className="p-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-40 text-slate-700 transition"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           </div>
 
-          {/* Flashcard Main Surface */}
-          <div className="rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-4 sm:p-8 space-y-4 sm:space-y-6 transition-all">
-            {/* Front Prompt */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
-                  Concept Challenge (Front)
-                </span>
-                <span className="text-xs text-slate-400 font-mono">
-                  Domain: {currentCard.domain_name}
-                </span>
-              </div>
-              <p className="text-base sm:text-lg font-semibold text-white leading-relaxed whitespace-pre-line">
-                {currentCard.front_prompt}
-              </p>
+          {/* Flashcard Surface (Interactive Flip) */}
+          <div
+            onClick={() => setIsFlipped((prev) => !prev)}
+            className={`min-h-[340px] p-6 sm:p-10 rounded-3xl border cursor-pointer transition-all duration-300 flex flex-col justify-between select-none shadow-sm hover:shadow-md ${
+              isFlipped
+                ? 'bg-gradient-to-br from-[#230832] via-[#2d0b3e] to-[#170522] text-white border-purple-500/30'
+                : 'bg-white text-slate-900 border-slate-200/90'
+            }`}
+          >
+            {/* Top Card Meta */}
+            <div className="flex items-center justify-between">
+              <span
+                className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full ${
+                  isFlipped
+                    ? 'bg-purple-900/60 text-purple-200 border border-purple-500/30'
+                    : 'bg-purple-100 text-purple-900'
+                }`}
+              >
+                {currentCard.domain_name || 'Exam Topic'}
+              </span>
+
+              <span
+                className={`text-xs font-semibold flex items-center gap-1.5 ${
+                  isFlipped ? 'text-purple-300' : 'text-slate-400'
+                }`}
+              >
+                <RotateCw className="h-3.5 w-3.5" />
+                <span>{isFlipped ? 'Click to show front' : 'Click to reveal explanation'}</span>
+              </span>
             </div>
 
-            {/* Flip / Reveal Button */}
-            {!isFlipped ? (
-              <div className="pt-4 text-center">
+            {/* Card Content Area */}
+            <div className="py-8">
+              {!isFlipped ? (
+                /* FRONT: Concept / Question that was missed */
+                <div className="space-y-4">
+                  <span className="text-[10px] uppercase font-black tracking-wider text-purple-700 block">
+                    Weak Spot Concept
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
+                    {currentCard.front}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-2">
+                    Think through the architecture rule or formula, then tap to test your memory.
+                  </p>
+                </div>
+              ) : (
+                /* BACK: Clarification and Distractor Autopsy */
+                <div className="space-y-4 animate-in fade-in duration-200">
+                  <span className="text-[10px] uppercase font-black tracking-wider text-emerald-400 block">
+                    Core Rule & Resolution
+                  </span>
+                  <p className="text-base sm:text-lg font-bold text-white leading-relaxed whitespace-pre-line">
+                    {currentCard.back}
+                  </p>
+
+                  {/* Cultural Mode Translation */}
+                  {currentCard.cultural_analogy && (
+                    <div className="mt-4 p-4 rounded-2xl bg-white/10 border border-white/10 text-xs text-purple-200 leading-relaxed">
+                      <strong className="text-white font-bold block mb-1">
+                        African Life Analogy ({languageMode}):
+                      </strong>
+                      {currentCard.cultural_analogy[languageMode] ||
+                        currentCard.cultural_analogy.african_context ||
+                        currentCard.cultural_analogy.standard}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Card Footer */}
+            <div
+              className={`pt-4 border-t flex items-center justify-between text-[11px] ${
+                isFlipped ? 'border-white/10 text-purple-300' : 'border-slate-100 text-slate-400'
+              }`}
+            >
+              <span>Repetition Interval: {currentCard.interval_days || 1} day(s)</span>
+              <span>SM-2 Factor: {currentCard.ease_factor || 2.5}</span>
+            </div>
+          </div>
+
+          {/* SM-2 Review Rating Buttons (Visible when flipped) */}
+          {isFlipped && (
+            <div className="space-y-3 animate-in fade-in duration-300">
+              <span className="text-xs font-bold text-slate-500 text-center block uppercase tracking-wider">
+                How easily did you recall this concept?
+              </span>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 <button
-                  onClick={() => setIsFlipped(true)}
-                  className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-indigo-600/30 flex items-center gap-2 mx-auto transition hover:scale-[1.02]"
+                  disabled={submittingRating}
+                  onClick={() => handleRating(1)}
+                  className="p-3 rounded-2xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-900 text-center font-bold text-xs transition shadow-sm"
                 >
-                  <Eye className="h-4 w-4" />
-                  <span>Reveal Answer & Cultural Analogy</span>
+                  <span className="block text-sm">❌ Again</span>
+                  <span className="text-[10px] text-rose-600 font-normal">Reset to Day 1</span>
+                </button>
+
+                <button
+                  disabled={submittingRating}
+                  onClick={() => handleRating(2)}
+                  className="p-3 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-center font-bold text-xs transition shadow-sm"
+                >
+                  <span className="block text-sm">⚠️ Hard</span>
+                  <span className="text-[10px] text-amber-700 font-normal">Review in 1 day</span>
+                </button>
+
+                <button
+                  disabled={submittingRating}
+                  onClick={() => handleRating(3)}
+                  className="p-3 rounded-2xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-center font-bold text-xs transition shadow-sm"
+                >
+                  <span className="block text-sm">👍 Good</span>
+                  <span className="text-[10px] text-blue-700 font-normal">Review in 3 days</span>
+                </button>
+
+                <button
+                  disabled={submittingRating}
+                  onClick={() => handleRating(4)}
+                  className="p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-center font-bold text-xs transition shadow-sm"
+                >
+                  <span className="block text-sm">🎯 Easy</span>
+                  <span className="text-[10px] text-emerald-700 font-normal">Review in 6+ days</span>
                 </button>
               </div>
-            ) : (
-              /* Back Revealed Explanation */
-              <div className="pt-4 border-t border-slate-800 space-y-5 animate-in fade-in duration-300">
-                <div className="space-y-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">
-                    Core Technical Answer (Back)
-                  </span>
-                  <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800/80 text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-line">
-                    {currentCard.back_explanation}
-                  </div>
-                </div>
-
-                {/* Cultural Analogy Box */}
-                {currentCard.context_notes && (
-                  <div className="p-4 rounded-2xl bg-slate-950/70 border border-indigo-500/30 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-300">
-                        <Globe2 className="h-3.5 w-3.5 text-indigo-400" />
-                        <span>Everyday Cultural Analogy</span>
-                      </div>
-
-                      {/* Language switcher pills */}
-                      <div className="flex items-center bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[10px]">
-                        {TONE_MODES.map((mode) => (
-                          <button
-                            key={mode.id}
-                            onClick={() => setLanguageMode(mode.id)}
-                            className={`px-2 py-0.5 rounded font-semibold transition ${
-                              languageMode === mode.id
-                                ? 'bg-indigo-600 text-white'
-                                : 'text-slate-400 hover:text-slate-200'
-                            }`}
-                          >
-                            {mode.shortLabel}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      {currentCard.context_notes[languageMode] ||
-                        currentCard.context_notes.african_analogy ||
-                        currentCard.context_notes.standard}
-                    </p>
-                  </div>
-                )}
-
-                {/* Recall Rating Controls */}
-                <div className="pt-2 space-y-2.5">
-                  <span className="font-semibold text-slate-300 text-xs block text-center sm:text-left">
-                    How well did you know this answer?
-                  </span>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <button
-                      disabled={submittingRating}
-                      onClick={() => handleRating('forgot')}
-                      className="py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold text-xs flex flex-col items-center gap-0.5 transition"
-                    >
-                      <span>Forgot</span>
-                      <span className="text-[10px] text-rose-400/80 font-normal">See tomorrow</span>
-                    </button>
-
-                    <button
-                      disabled={submittingRating}
-                      onClick={() => handleRating('hard')}
-                      className="py-2.5 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold text-xs flex flex-col items-center gap-0.5 transition"
-                    >
-                      <span>Hard</span>
-                      <span className="text-[10px] text-amber-400/80 font-normal">In 2 days</span>
-                    </button>
-
-                    <button
-                      disabled={submittingRating}
-                      onClick={() => handleRating('good')}
-                      className="py-2.5 px-3 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold text-xs flex flex-col items-center gap-0.5 transition"
-                    >
-                      <span>Good</span>
-                      <span className="text-[10px] text-indigo-400/80 font-normal">In 4 days</span>
-                    </button>
-
-                    <button
-                      disabled={submittingRating}
-                      onClick={() => handleRating('easy')}
-                      className="py-2.5 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold text-xs flex flex-col items-center gap-0.5 transition"
-                    >
-                      <span>Easy</span>
-                      <span className="text-[10px] text-emerald-400/80 font-normal">Mastered</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>

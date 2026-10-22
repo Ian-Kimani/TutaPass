@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  BarChart3,
+  Home,
   Calendar,
   BrainCircuit,
   Flame,
@@ -8,11 +8,16 @@ import {
   RotateCcw,
   Plus,
   Sparkles,
+  Menu,
+  X,
+  ChevronDown,
+  Layers,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { TABS, TAB_ITEMS, TONE_MODES, COMPLIANCE_NOTICE } from '../constants/navigation';
 import PromptXRayDrawer from '../components/PromptXRayDrawer';
 import SyllabusImportModal from '../components/SyllabusImportModal';
+import StudyBuddyFloatingBar from '../components/StudyBuddyFloatingBar';
 
 export default function MainLayout({ children }) {
   const {
@@ -32,93 +37,236 @@ export default function MainLayout({ children }) {
     toastMessage,
   } = useApp();
 
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
   const dueFlashcardsCount = dashboardData?.readiness?.metrics?.dueFlashcards || 0;
   const overallReadiness = dashboardData?.readiness?.overallReadiness ?? 64;
 
   const getIcon = (iconName) => {
     switch (iconName) {
-      case 'BarChart3':
-        return <BarChart3 className="h-4 w-4" />;
+      case 'Home':
+        return <Home className="h-5 w-5" />;
       case 'Calendar':
-        return <Calendar className="h-4 w-4" />;
+        return <Calendar className="h-5 w-5" />;
       case 'BrainCircuit':
-        return <BrainCircuit className="h-4 w-4" />;
+        return <BrainCircuit className="h-5 w-5" />;
       case 'Flame':
-        return <Flame className="h-4 w-4" />;
+        return <Flame className="h-5 w-5" />;
       default:
-        return null;
+        return <Layers className="h-5 w-5" />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-[#f7f6fa] text-slate-900 flex selection:bg-purple-900 selection:text-white">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 border border-indigo-500/40 shadow-2xl text-xs font-medium text-slate-100 animate-in fade-in slide-in-from-top-2">
-          <Sparkles className="h-4 w-4 text-indigo-400 shrink-0" />
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#1c0929] text-white border border-purple-500/40 shadow-2xl text-xs font-semibold animate-in fade-in slide-in-from-top-2">
+          <Sparkles className="h-4 w-4 text-purple-400 shrink-0" />
           <span>{toastMessage.msg}</span>
         </div>
       )}
 
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-4">
-            {/* Left: Brand Logo + Compact Exam Selector */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              <div
-                onClick={() => setActiveTab(TABS.DASHBOARD)}
-                className="flex items-center gap-2 cursor-pointer group"
-              >
-                <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/30 group-hover:scale-105 transition-transform shrink-0">
-                  <BrainCircuit className="h-4 w-4 sm:h-5 sm:w-5" />
-                </div>
-                <span className="text-base sm:text-lg font-black tracking-tight text-white hidden xs:inline">TutaPass</span>
+      {/* Mobile Sidebar Overlay Backdrop */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 md:hidden transition-opacity"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/* Left Sidebar (ABF Deep Plum / Aubergine Theme) */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#13071e] text-white border-r border-[#26133a] flex flex-col justify-between shrink-0 transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
+          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* Top: Brand Logo + Active Exam Selector */}
+        <div className="p-5 border-b border-[#26133a]">
+          <div className="flex items-center justify-between mb-4">
+            <div
+              onClick={() => {
+                setActiveTab(TABS.DASHBOARD);
+                setMobileSidebarOpen(false);
+              }}
+              className="flex items-center gap-2.5 cursor-pointer group"
+            >
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-purple-900/50 group-hover:scale-105 transition-transform">
+                <BrainCircuit className="h-5 w-5" />
               </div>
-
-              {/* Compact Exam Selector Dropdown */}
-              <div className="flex items-center gap-1 sm:gap-1.5 pl-2 sm:pl-3 border-l border-slate-800">
-                <select
-                  value={activeSyllabus?.id || ''}
-                  onChange={(e) => {
-                    const found = syllabi.find((s) => s.id === parseInt(e.target.value, 10));
-                    if (found) {
-                      setActiveSyllabus(found);
-                      refreshDashboard(found.id);
-                    }
-                  }}
-                  className="bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-200 text-xs rounded-xl px-2 sm:px-2.5 py-1.5 focus:outline-none focus:border-indigo-500 font-medium cursor-pointer max-w-[110px] sm:max-w-[200px] truncate"
-                >
-                  {syllabi.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.code ? `${s.code}: ` : ''}{s.title.replace(' (Unofficial Prep)', '')}
-                    </option>
-                  ))}
-                </select>
-
-                <button
-                  onClick={() => setIsImportModalOpen(true)}
-                  className="p-1.5 sm:px-2 sm:py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-indigo-400 text-xs font-medium flex items-center gap-1 border border-slate-800 transition shrink-0"
-                  title="Add any other certification or exam syllabus"
-                >
-                  <Plus className="h-3.5 w-3.5 text-indigo-400" />
-                  <span className="hidden sm:inline">Add Exam</span>
-                </button>
+              <div>
+                <span className="text-xl font-black tracking-tight text-white block leading-none">
+                  TutaPass
+                </span>
+                <span className="text-[10px] text-purple-300 font-medium tracking-wider uppercase">
+                  Africa AI Prep
+                </span>
               </div>
             </div>
 
-            {/* Right: Language Switcher, Subtle Reset, and Prompt X-Ray Button */}
-            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-              {/* Language / Tone Pill Switcher */}
-              <div className="flex items-center bg-slate-950 p-0.5 sm:p-1 rounded-xl border border-slate-800/80 text-xs">
+            {/* Mobile close button */}
+            <button
+              onClick={() => setMobileSidebarOpen(false)}
+              className="p-1 rounded-lg text-slate-400 hover:text-white md:hidden"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Active Exam Selector Dropdown */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] uppercase font-bold text-purple-300/80 tracking-wider block">
+              Active Exam Syllabus
+            </label>
+            <div className="relative">
+              <select
+                value={activeSyllabus?.id || ''}
+                onChange={(e) => {
+                  const found = syllabi.find((s) => s.id === parseInt(e.target.value, 10));
+                  if (found) {
+                    setActiveSyllabus(found);
+                    refreshDashboard(found.id);
+                  }
+                }}
+                className="w-full bg-[#200c31] border border-[#3b1d54] text-slate-100 text-xs rounded-xl px-3 py-2 pr-8 focus:outline-none focus:border-purple-500 font-medium cursor-pointer truncate appearance-none"
+              >
+                {syllabi.map((s) => (
+                  <option key={s.id} value={s.id} className="bg-[#170724] text-white">
+                    {s.code ? `${s.code}: ` : ''}{s.title.replace(' (Unofficial Prep)', '')}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="h-4 w-4 text-purple-400 absolute right-2.5 top-2.5 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* Middle: Navigation Items (ABF Sidebar style) */}
+        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
+          {TAB_ITEMS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setMobileSidebarOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition ${
+                  isActive
+                    ? 'bg-[#2a1b38] text-white shadow-inner border border-purple-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-[#1a0a29]'
+                }`}
+              >
+                <div className="flex items-center gap-3.5">
+                  {getIcon(tab.iconName)}
+                  <span>{tab.label}</span>
+                </div>
+                {tab.id === TABS.FLASHCARDS && dueFlashcardsCount > 0 && (
+                  <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                    {dueFlashcardsCount}
+                  </span>
+                )}
+                {tab.id === TABS.DASHBOARD && (
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#1c0c2a] text-purple-200 font-mono">
+                    {overallReadiness}%
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Bottom: Action Cards (Styled like ABF's TestFlight / Google Play buttons) */}
+        <div className="p-4 border-t border-[#26133a] space-y-2.5 bg-[#0f0418]/80">
+          <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider px-1">
+            Tools & Evaluation
+          </div>
+
+          {/* + Add Any Exam Button */}
+          <button
+            onClick={() => {
+              setIsImportModalOpen(true);
+              setMobileSidebarOpen(false);
+            }}
+            className="w-full bg-[#1b0a2b] hover:bg-[#28113e] border border-purple-500/20 text-white rounded-2xl p-3 flex items-center gap-3 transition shadow-sm group text-left"
+          >
+            <div className="h-9 w-9 rounded-xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-300 group-hover:scale-105 transition-transform shrink-0">
+              <Plus className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase font-bold text-purple-300/80 tracking-wider">
+                Universal Engine
+              </div>
+              <div className="text-xs font-bold text-white truncate">+ Add Any Exam</div>
+            </div>
+          </button>
+
+          {/* Prompt X-Ray Button */}
+          <button
+            onClick={() => {
+              setIsXRayOpen(true);
+              setMobileSidebarOpen(false);
+            }}
+            className="w-full bg-[#1b0a2b] hover:bg-[#28113e] border border-purple-500/20 text-white rounded-2xl p-3 flex items-center gap-3 transition shadow-sm group text-left"
+          >
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white group-hover:scale-105 transition-transform shrink-0 shadow-md">
+              <Terminal className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] uppercase font-bold text-purple-300/80 tracking-wider">
+                  Judge Criteria
+                </span>
+                <span className="text-[9px] font-bold px-1.5 py-0.2 bg-purple-500/30 text-purple-200 rounded font-mono">
+                  20%
+                </span>
+              </div>
+              <div className="text-xs font-bold text-white truncate">Prompt X-Ray</div>
+            </div>
+          </button>
+
+          <div className="text-[10px] text-slate-500 text-center pt-1 font-medium">
+            Unofficial Exam Prep Companion
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area (Light Off-White Canvas) */}
+      <div className="flex-1 md:pl-64 flex flex-col min-w-0 min-h-screen">
+        {/* Top Canvas Bar (ABF Sub-Navigation & Controls) */}
+        <header className="sticky top-0 z-30 bg-[#f7f6fa]/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 py-3">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            {/* Left: Mobile hamburger + Active syllabus label */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setMobileSidebarOpen(true)}
+                className="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-slate-900 md:hidden shadow-sm"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
+                  Current Track
+                </span>
+                <h2 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight truncate max-w-[220px] sm:max-w-md">
+                  {activeSyllabus?.title || 'Microsoft Azure Fundamentals'}
+                </h2>
+              </div>
+            </div>
+
+            {/* Right: Language Pill Switcher & Reset Button (ABF Pill Style) */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Language Pill Switcher (Like ABF's Sessions | My agenda | Experiences bar) */}
+              <div className="flex items-center bg-slate-200/60 p-1 rounded-full text-xs">
                 {TONE_MODES.map((mode) => (
                   <button
                     key={mode.id}
                     onClick={() => setLanguageMode(mode.id)}
-                    className={`px-1.5 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition ${
+                    className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-bold transition ${
                       languageMode === mode.id
-                        ? 'bg-indigo-600 text-white shadow-sm'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-white text-slate-900 shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900'
                     }`}
                     title={mode.description}
                   >
@@ -127,82 +275,43 @@ export default function MainLayout({ children }) {
                 ))}
               </div>
 
-              {/* Subtle Reset Icon Button */}
+              {/* Reset Demo Button */}
               <button
                 onClick={handleResetDemo}
                 disabled={isResettingDemo}
-                className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition disabled:opacity-50"
-                title="Reset demo data to initial state (~64% score)"
+                className="p-2 rounded-full bg-white border border-slate-200/80 text-slate-600 hover:text-slate-900 shadow-sm hover:shadow transition disabled:opacity-50"
+                title="Reset demo data to initial state"
               >
-                <RotateCcw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${isResettingDemo ? 'animate-spin text-amber-400' : ''}`} />
-              </button>
-
-              {/* Judge's Prompt X-Ray Button */}
-              <button
-                onClick={() => setIsXRayOpen(true)}
-                className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-purple-600/20 flex items-center gap-1 sm:gap-1.5 border border-purple-400/30 transition hover:scale-[1.02] active:scale-[0.98] shrink-0"
-              >
-                <Terminal className="h-3.5 w-3.5 shrink-0" />
-                <span className="hidden sm:inline">Prompt </span>
-                <span>X-Ray</span>
-                <span className="hidden sm:inline-block px-1.5 py-0.2 text-[10px] bg-white/20 rounded font-mono">20%</span>
+                <RotateCcw
+                  className={`h-4 w-4 ${isResettingDemo ? 'animate-spin text-purple-600' : ''}`}
+                />
               </button>
             </div>
           </div>
+        </header>
 
-          {/* Navigation Tabs Bar */}
-          <div className="flex items-center space-x-1 sm:space-x-2 overflow-x-auto py-2 sm:py-2.5 border-t border-slate-800/80 scrollbar-none -mx-3 px-3 sm:mx-0 sm:px-0">
-            {TAB_ITEMS.map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition shrink-0 whitespace-nowrap ${
-                    isActive
-                      ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 shadow-sm'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                  }`}
-                >
-                  {getIcon(tab.iconName)}
-                  <span>{tab.label}</span>
-                  {tab.id === TABS.FLASHCARDS && dueFlashcardsCount > 0 && (
-                    <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                      {dueFlashcardsCount}
-                    </span>
-                  )}
-                  {tab.id === TABS.DASHBOARD && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                      {overallReadiness}%
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </header>
+        {/* Main Canvas Body */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6 sm:py-8">
+          {children}
+        </main>
 
-      {/* Main View Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
-        {children}
-      </main>
-
-      {/* Compliance & Attributions Footer */}
-      <footer className="bg-slate-900/60 border-t border-slate-800 py-6 text-xs text-slate-400">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-          <div>
-            <p className="text-slate-400 text-[11px] max-w-2xl leading-relaxed">
+        {/* Footer */}
+        <footer className="border-t border-slate-200/80 bg-white/50 py-6 text-xs text-slate-500">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            <p className="text-[11px] max-w-2xl text-slate-500 leading-relaxed">
               {COMPLIANCE_NOTICE}
             </p>
+            <div className="shrink-0 flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+              <span>Power Learn Project Vibe Coding</span>
+              <span>•</span>
+              <span className="text-purple-700 font-bold">Gemini 2.5 Flash Engine</span>
+            </div>
           </div>
-          <div className="shrink-0 flex items-center gap-3 text-[11px] text-slate-400">
-            <span>Power Learn Project #1MillionDevs</span>
-            <span>•</span>
-            <span className="text-indigo-400">Gemini 3.8 Flash Engine</span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
+
+      {/* Floating Audio-Player Style "AI Study Buddy" Bar */}
+      <StudyBuddyFloatingBar />
 
       {/* Modals & Slide-out Drawers */}
       <PromptXRayDrawer />

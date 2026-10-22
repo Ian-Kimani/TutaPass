@@ -8,8 +8,8 @@ export const TABS = {
 export const TAB_ITEMS = [
   {
     id: TABS.DASHBOARD,
-    label: 'Overview',
-    iconName: 'BarChart3',
+    label: 'Home',
+    iconName: 'Home',
     description: 'Exam readiness score, domain progress, and study stats',
   },
   {

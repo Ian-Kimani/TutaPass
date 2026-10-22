@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   BrainCircuit,
   Flame,
@@ -6,20 +6,15 @@ import {
   Sparkles,
   Target,
   TrendingUp,
-  Search,
+  RotateCcw,
+  CheckCircle2,
+  Calendar,
+  Layers,
+  ChevronRight,
+  Play,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { TABS, TONE_MODES } from '../constants/navigation';
-import { getVerdictBadge } from '../utils/formatters';
-import apiService from '../services/api.service';
-
-const PRESET_CONCEPTS = [
-  'CapEx vs OpEx',
-  'Availability Zones vs Sets',
-  'Azure Policy vs RBAC',
-  'IaaS vs PaaS vs Serverless',
-  'Azure Resource Locks',
-];
+import { TABS } from '../constants/navigation';
 
 export default function DashboardPage() {
   const {
@@ -27,54 +22,96 @@ export default function DashboardPage() {
     loadingDashboard,
     setActiveTab,
     setSelectedQuizDomainId,
-    languageMode,
-    setLanguageMode,
-    showToast,
     activeSyllabus,
+    handleResetDemo,
+    isResettingDemo,
   } = useApp();
-
-  // Concept Explainer state
-  const [conceptQuery, setConceptQuery] = useState('');
-  const [explaining, setExplaining] = useState(false);
-  const [explanationData, setExplanationData] = useState(null);
 
   const readiness = dashboardData?.readiness;
   const metrics = readiness?.metrics;
   const overallScore = readiness?.overallReadiness ?? 64;
-  const verdictStyle = getVerdictBadge(overallScore);
-
-  const isFlagship = activeSyllabus?.is_flagship || activeSyllabus?.code === 'AZ-900';
-  const dynamicPresetPills = isFlagship
-    ? PRESET_CONCEPTS
-    : (readiness?.domains?.map((d) => d.name.replace(/^Describe\s+/i, '')) || ['Core Concepts', 'Applied Methods', 'Key Rules']);
+  const domains = readiness?.domains || [];
 
   const handlePracticeDomain = (domainId) => {
     setSelectedQuizDomainId(domainId);
     setActiveTab(TABS.QUIZ);
   };
 
-  const handleExplain = async (termToExplain) => {
-    const term = (termToExplain || conceptQuery).trim();
-    if (!term) return;
-
+  // Parse study plan schedule or provide smart fallback agenda
+  const rawPlan = dashboardData?.studyPlan;
+  let scheduleItems = [];
+  if (rawPlan?.schedule_data) {
     try {
-      setExplaining(true);
-      const topicContext = activeSyllabus?.title || 'AZ-900 Cloud Fundamentals';
-      const res = await apiService.explainConcept(term, topicContext, languageMode);
-      setExplanationData(res?.explanation || null);
-      showToast(`AI Concept explanation generated for "${term}"!`, 'info');
-    } catch (err) {
-      showToast(`Failed to explain concept: ${err.message}`, 'error');
-    } finally {
-      setExplaining(false);
+      const parsed =
+        typeof rawPlan.schedule_data === 'string'
+          ? JSON.parse(rawPlan.schedule_data)
+          : rawPlan.schedule_data;
+      scheduleItems = Array.isArray(parsed) ? parsed : parsed.schedule || [];
+    } catch {
+      scheduleItems = [];
     }
-  };
+  }
+
+  // If no generated plan yet, derive 3 agenda days from the current syllabus domains
+  if (scheduleItems.length === 0 && domains.length > 0) {
+    scheduleItems = [
+      {
+        day: 1,
+        topic: domains[0]?.name?.replace(/^Describe\s+/i, '') || 'Core Exam Fundamentals',
+        action: 'Review key architecture definitions and attempt 5 practice scenario questions.',
+        duration: '1.5 hrs',
+        status: 'pending',
+      },
+      {
+        day: 2,
+        topic: domains[1]?.name?.replace(/^Describe\s+/i, '') || 'Architecture & Operations',
+        action: 'Drill into service management, fault tolerance, and resolve active mistake cards.',
+        duration: '1.0 hr',
+        status: 'pending',
+      },
+      {
+        day: 3,
+        topic: domains[2]?.name?.replace(/^Describe\s+/i, '') || 'Security, Pricing & Governance',
+        action: 'Lock in pricing structures, governance policies, and take a 10-question sprint.',
+        duration: '1.5 hrs',
+        status: 'pending',
+      },
+    ];
+  }
+
+  // Graphic poster banners for domain cards
+  const POSTER_STYLES = [
+    {
+      // Style 1: Emerald/Teal poster banner (Stable Serves style)
+      wrapperBg: 'bg-gradient-to-br from-teal-700 via-emerald-800 to-slate-900',
+      badgeBg: 'bg-[#f8e71c] text-black font-extrabold',
+      textColor: 'text-white',
+      accentColor: 'text-emerald-300',
+      progressFill: 'bg-emerald-500',
+    },
+    {
+      // Style 2: Warm Cream/Purple poster banner (SLINGSHOT style)
+      wrapperBg: 'bg-gradient-to-br from-[#f6eff9] via-[#ecd5f7] to-[#451457]',
+      badgeBg: 'bg-[#230832] text-white font-bold',
+      textColor: 'text-[#230832]',
+      accentColor: 'text-purple-700',
+      progressFill: 'bg-purple-600',
+    },
+    {
+      // Style 3: Bold Gold/Black poster banner (ACS Mix style)
+      wrapperBg: 'bg-gradient-to-br from-slate-950 via-[#2a1a0c] to-amber-600',
+      badgeBg: 'bg-[#f59e0b] text-slate-950 font-black',
+      textColor: 'text-white',
+      accentColor: 'text-amber-300',
+      progressFill: 'bg-amber-500',
+    },
+  ];
 
   if (loadingDashboard) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="flex flex-col items-center gap-3 text-slate-400 text-sm">
-          <div className="h-8 w-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="flex flex-col items-center gap-3 text-slate-500 text-sm">
+          <div className="h-8 w-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
           <span>Loading your study progress...</span>
         </div>
       </div>
@@ -82,313 +119,257 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8 pb-10">
-      {/* Hero Readiness Banner with Inline Stat Pills */}
-      <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 p-4 sm:p-8 shadow-xl">
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-3.5 max-w-2xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-bold border ${verdictStyle.color}`}>
-                ● {readiness?.verdict || 'Sharpening Phase'}
-              </span>
-              <span className="text-xs text-slate-400 font-mono">
-                {activeSyllabus?.code || 'Exam'} Target Pass Standard: ~70%
-              </span>
-            </div>
+    <div className="space-y-10 pb-16">
+      {/* 1. TOP HERO CONTAINER (The ABF Plum Stage with 3 White Poster Cards) */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#4a1259] via-[#2d0b38] to-[#180521] p-6 sm:p-8 text-white shadow-xl">
+        {/* Subtle decorative glow */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
 
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Exam Readiness: <span className="text-indigo-400">{overallScore}%</span>
-            </h1>
-
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              You're making solid progress! Practice your weakest topics below and review your {metrics?.dueFlashcards ?? 3} mistake cards to reach the 80% safe zone.
-            </p>
-
-            {/* Compact Inline Stat Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1 text-xs">
-              <span className="px-2.5 sm:px-3 py-1 rounded-full bg-slate-950/80 border border-slate-800 text-slate-300 font-medium flex items-center gap-1.5">
-                <Target className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
-                <span><strong>{metrics?.overallAccuracy ?? 64}%</strong> Accuracy</span>
-              </span>
-              <span className="px-2.5 sm:px-3 py-1 rounded-full bg-slate-950/80 border border-slate-800 text-slate-300 font-medium flex items-center gap-1.5">
-                <TrendingUp className="h-3.5 w-3.5 text-purple-400 shrink-0" />
-                <span><strong>{metrics?.totalAttempts ?? 11}</strong> Practiced</span>
-              </span>
-              <span className="px-2.5 sm:px-3 py-1 rounded-full bg-slate-950/80 border border-slate-800 text-slate-300 font-medium flex items-center gap-1.5">
-                <Flame className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                <span><strong>{metrics?.dueFlashcards ?? 3}</strong> Mistake Cards Due</span>
+        {/* Top Header Row of the Plum Container */}
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-purple-500/20">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1b0824] border border-purple-500/30 text-xs font-bold text-white shadow-sm">
+              <Target className="h-3.5 w-3.5 text-purple-400" />
+              <span>
+                Exam Readiness: <strong className="text-purple-300">{overallScore}%</strong>{' '}
+                <span className="text-[11px] text-purple-200/70 font-normal">(Goal: 80%+)</span>
               </span>
             </div>
 
-            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 pt-2">
-              <button
-                onClick={() => {
-                  setSelectedQuizDomainId(null);
-                  setActiveTab(TABS.QUIZ);
-                }}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition hover:scale-[1.02]"
-              >
-                <BrainCircuit className="h-4 w-4" />
-                <span>Practice Quiz</span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
-
-              <button
-                onClick={() => setActiveTab(TABS.FLASHCARDS)}
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium border border-slate-700/60 flex items-center justify-center gap-2 transition"
-              >
-                <Flame className="h-4 w-4 text-amber-400" />
-                <span>Review Mistake Cards ({metrics?.dueFlashcards || 0})</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab(TABS.PLANNER)}
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-300 text-xs sm:text-sm font-medium border border-slate-800 text-center transition"
-              >
-                Study Plan
-              </button>
+            {/* Inline Stat Pills */}
+            <div className="flex items-center gap-2 text-xs text-purple-200/90 flex-wrap">
+              <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 font-semibold">
+                {metrics?.overallAccuracy ?? 64}% Accuracy
+              </span>
+              <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 font-semibold">
+                {metrics?.totalAttempts ?? 11} Practiced
+              </span>
+              <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-500/30 font-semibold flex items-center gap-1">
+                <Flame className="h-3 w-3 text-amber-400" />
+                {metrics?.dueFlashcards ?? 3} Mistake Cards Due
+              </span>
             </div>
           </div>
 
-          {/* Readiness Circular Visual */}
-          <div className="shrink-0 flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl bg-slate-950/80 border border-slate-800/80 shadow-inner w-full sm:w-auto">
-            <div className="relative flex items-center justify-center w-32 h-32">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                <path
-                  className="text-slate-800"
-                  strokeWidth="3.5"
-                  stroke="currentColor"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-                <path
-                  className={overallScore >= 80 ? 'text-emerald-500' : overallScore >= 60 ? 'text-indigo-500' : 'text-amber-500'}
-                  strokeDasharray={`${overallScore}, 100`}
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  stroke="currentColor"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-              </svg>
-              <div className="absolute text-center">
-                <span className="text-3xl font-black text-white">{overallScore}%</span>
-                <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                  Readiness
-                </span>
-              </div>
-            </div>
-            <span className="text-xs text-indigo-400 mt-2 font-medium">Goal: 80%+</span>
-          </div>
+          <button
+            onClick={handleResetDemo}
+            disabled={isResettingDemo}
+            className="self-start md:self-auto px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs font-semibold text-purple-200 hover:text-white transition flex items-center gap-1.5 shrink-0"
+            title="Reset demo data to initial state"
+          >
+            <RotateCcw className={`h-3.5 w-3.5 ${isResettingDemo ? 'animate-spin' : ''}`} />
+            <span>Reset Demo</span>
+          </button>
         </div>
-      </section>
 
-      {/* Domain Mastery Section */}
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-bold text-white">Topic Mastery</h2>
-          <p className="text-xs text-slate-400">
-            Core topics for {activeSyllabus?.title || 'your exam'} and your current accuracy
+        {/* Section Title inside Plum Box (ABF "Experiences" Title Style) */}
+        <div className="relative z-10 pt-6 pb-2">
+          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+            Topic Mastery
+          </h2>
+          <p className="text-xs text-purple-200/80 mt-0.5">
+            Core domains for {activeSyllabus?.title || 'your syllabus'} • Click any poster to drill
+            scenario questions
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {readiness?.domains && readiness.domains.length > 0 ? (
-            readiness.domains.map((d) => {
+        {/* The 3 White Poster Cards Inside the Plum Container */}
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
+          {domains && domains.length > 0 ? (
+            domains.map((d, index) => {
               const cleanTitle = d.name.replace(/^Describe\s+/i, '');
+              const style = POSTER_STYLES[index % POSTER_STYLES.length];
+
               return (
                 <div
                   key={d.id}
-                  className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition space-y-4 shadow-sm"
+                  onClick={() => handlePracticeDomain(d.id)}
+                  className="bg-white text-slate-900 rounded-2xl p-3 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between group"
                 >
-                  <div>
-                    <div className="flex items-center justify-between text-xs mb-2">
-                      <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">
-                        Exam Weight: {d.weightRange}
-                      </span>
+                  {/* Top Graphic Poster Banner (ABF Festival Poster Style) */}
+                  <div
+                    className={`${style.wrapperBg} ${style.textColor} rounded-xl p-4 relative overflow-hidden h-36 flex flex-col justify-between shadow-inner`}
+                  >
+                    {/* Background SVG graphics */}
+                    <div className="absolute right-0 bottom-0 opacity-15 pointer-events-none">
+                      <svg width="120" height="120" viewBox="0 0 100 100" fill="currentColor">
+                        <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="6" fill="none" />
+                        <path d="M10 50 Q 50 10 90 50" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path d="M10 50 Q 50 90 90 50" stroke="currentColor" strokeWidth="4" fill="none" />
+                      </svg>
+                    </div>
+
+                    {/* Top Row: Pill Badge (Like ABF's "For you" yellow badge) */}
+                    <div className="flex items-center justify-between relative z-10">
                       <span
-                        className={`font-mono font-bold text-sm ${
-                          d.masteryPercentage >= 80
-                            ? 'text-emerald-400'
-                            : d.masteryPercentage >= 60
-                            ? 'text-indigo-400'
-                            : 'text-amber-400'
-                        }`}
+                        className={`${style.badgeBg} text-[11px] px-2.5 py-0.5 rounded-full shadow-sm tracking-wide`}
                       >
-                        {d.masteryPercentage}%
+                        Weight: {d.weightRange || `${d.weightPercentage || 30}%`}
+                      </span>
+                      <span className="text-[10px] font-mono uppercase tracking-wider opacity-80">
+                        Domain {index + 1}
                       </span>
                     </div>
 
-                    <h3 className="text-sm font-semibold text-slate-100 leading-snug line-clamp-2">
-                      {cleanTitle}
-                    </h3>
-
-                    <div className="w-full bg-slate-800 h-2.5 rounded-full mt-3 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-700 ${
-                          d.masteryPercentage >= 80
-                            ? 'bg-emerald-500'
-                            : d.masteryPercentage >= 60
-                            ? 'bg-indigo-500'
-                            : 'bg-amber-500'
-                        }`}
-                        style={{ width: `${d.masteryPercentage}%` }}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2.5">
-                      <span>
-                        {d.correctAttempts}/{d.totalAttempts} correct
-                      </span>
-                      {d.cardsDue > 0 && (
-                        <span className="text-amber-400 font-medium">
-                          {d.cardsDue} mistake cards due
+                    {/* Bottom Row inside Poster: Large Bold Percentage */}
+                    <div className="relative z-10">
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-3xl sm:text-4xl font-black tracking-tight leading-none">
+                          {d.masteryPercentage}%
                         </span>
-                      )}
+                        <span className="text-xs uppercase font-bold tracking-wider opacity-80">
+                          Mastery
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => handlePracticeDomain(d.id)}
-                    className="w-full py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-indigo-600/20 text-slate-200 hover:text-indigo-300 text-xs font-semibold flex items-center justify-center gap-1.5 border border-slate-700/60 hover:border-indigo-500/50 transition"
-                  >
-                    <span>Practice Topic</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
+                  {/* Bottom Half of Card: Info & Progress */}
+                  <div className="p-2 pt-3 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="text-[11px] text-slate-500 font-medium">
+                        {d.correctAttempts}/{d.totalAttempts} correct • Click to practice
+                      </div>
+                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-purple-900 transition mt-0.5 line-clamp-1">
+                        {cleanTitle}
+                      </h3>
+                    </div>
+
+                    {/* Thin Progress Bar */}
+                    <div className="mt-3">
+                      <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full ${style.progressFill} transition-all duration-700`}
+                          style={{ width: `${d.masteryPercentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               );
             })
           ) : (
-            <div className="col-span-full py-8 text-center text-slate-400 text-sm">
-              No topics found for this exam. Click "+ Add Exam" to import syllabus topics.
+            <div className="col-span-full py-8 text-center text-purple-200 text-sm">
+              No domains found for this syllabus. Click "+ Add Exam" to import an outline.
             </div>
           )}
         </div>
       </section>
 
-      {/* Ask the AI Study Buddy Card */}
-      <section className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md shrink-0">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="text-sm sm:text-base font-bold text-white">Ask the AI Study Buddy</h2>
-              <p className="text-xs text-slate-400">
-                Confused by a concept? Type it below to get an instant breakdown in English, African everyday life, or Sheng.
-              </p>
-            </div>
-          </div>
-
-          {/* Quick Tone Switcher on card */}
-          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs shrink-0 self-start sm:self-auto">
-            {TONE_MODES.map((mode) => (
-              <button
-                key={mode.id}
-                onClick={() => setLanguageMode(mode.id)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition ${
-                  languageMode === mode.id
-                    ? 'bg-indigo-600 text-white font-semibold'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {mode.shortLabel}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Input & Preset Pills */}
-        <div className="space-y-3">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleExplain();
-            }}
-            className="flex flex-col sm:flex-row gap-2"
-          >
-            <div className="relative flex-1">
-              <Search className="h-4 w-4 absolute left-3.5 top-3 text-slate-500" />
-              <input
-                type="text"
-                value={conceptQuery}
-                onChange={(e) => setConceptQuery(e.target.value)}
-                placeholder={
-                  isFlagship
-                    ? 'Ask about any cloud term (e.g. CapEx vs OpEx, Availability Zones, Azure Bastion)...'
-                    : `Ask about any topic in ${activeSyllabus?.title || 'this exam'}...`
-                }
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={explaining || !conceptQuery.trim()}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-sm"
-            >
-              {explaining ? (
-                <>
-                  <span className="h-3.5 w-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                  <span>Explaining...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>Explain</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Dynamic Preset Pills */}
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="text-slate-400 text-[11px]">Popular exam topics:</span>
-            {dynamicPresetPills.map((pill) => (
-              <button
-                key={pill}
-                type="button"
-                onClick={() => {
-                  setConceptQuery(pill);
-                  handleExplain(pill);
-                }}
-                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition text-xs border border-slate-700/50"
-              >
-                {pill}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Explanation Results Panel */}
-        {explanationData && (
-          <div className="p-5 rounded-2xl bg-slate-950 border border-indigo-500/30 space-y-3 animate-in fade-in duration-300">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <span className="text-sm font-bold text-indigo-300">
-                {explanationData.headline || explanationData.concept}
-              </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-950 text-indigo-400 border border-indigo-800">
-                Mode: {explanationData.mode}
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
-              {explanationData.explanation}
+      {/* 2. BOTTOM SECTION: YOUR STUDY AGENDA TIMELINE (Just like "Your ABF Agenda"!) */}
+      <section className="space-y-5">
+        {/* Agenda Section Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Your Study Agenda
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Daily milestone plan focused on your weak exam areas
             </p>
-
-            {explanationData.keyAnalogy && (
-              <div className="p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-xs text-purple-200">
-                <strong>Everyday Analogy:</strong> {explanationData.keyAnalogy}
-              </div>
-            )}
-
-            {explanationData.takeawayForExam && (
-              <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/20 text-xs text-emerald-300">
-                <strong>Key Exam Tip:</strong> {explanationData.takeawayForExam}
-              </div>
-            )}
           </div>
-        )}
+
+          <button
+            onClick={() => setActiveTab(TABS.PLANNER)}
+            className="px-4 py-2 rounded-full bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold border border-slate-200/90 shadow-sm transition flex items-center gap-1.5"
+          >
+            <span>View full plan</span>
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Timeline with vertical line and left dots (ABF Agenda Style) */}
+        <div className="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-2 sm:before:left-2.5 before:top-4 before:bottom-4 before:w-0.5 before:bg-slate-300">
+          {scheduleItems.slice(0, 3).map((item, idx) => {
+            const isToday = idx === 0;
+
+            return (
+              <div key={idx} className="relative group">
+                {/* Timeline dot */}
+                <div
+                  className={`absolute -left-6 sm:-left-8 top-6 h-3.5 w-3.5 rounded-full border-2 ${
+                    isToday
+                      ? 'bg-[#230832] border-white ring-4 ring-purple-200'
+                      : 'bg-slate-400 border-white'
+                  }`}
+                />
+
+                {isToday ? (
+                  /* Row 1: Today's Focus - Solid Deep Plum Bar (ABF Black/Plum Card) */
+                  <div className="bg-[#230832] text-white rounded-2xl p-5 sm:p-6 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-start sm:items-center gap-4">
+                      <div className="text-center sm:text-left shrink-0">
+                        <span className="text-sm sm:text-base font-black text-white block">
+                          DAY {item.day || 1}
+                        </span>
+                        <span className="text-[11px] text-purple-300 font-medium">
+                          {item.duration || '1.5 hrs'}
+                        </span>
+                      </div>
+
+                      <div className="border-l border-purple-500/30 pl-4">
+                        <span className="text-[10px] uppercase font-bold text-purple-300 tracking-wider block">
+                          Today's Priority Focus
+                        </span>
+                        <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
+                          {item.topic}
+                        </h4>
+                        <p className="text-xs text-purple-200/80 mt-1 line-clamp-1 sm:line-clamp-none">
+                          {item.action || item.activity}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        const matchedDomain = domains.find(
+                          (d) =>
+                            d.name.toLowerCase().includes(item.topic.toLowerCase()) ||
+                            item.topic.toLowerCase().includes(d.name.toLowerCase())
+                        );
+                        if (matchedDomain) {
+                          setSelectedQuizDomainId(matchedDomain.id);
+                        }
+                        setActiveTab(TABS.QUIZ);
+                      }}
+                      className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-white text-[#230832] hover:bg-purple-100 flex items-center justify-center font-black shadow-lg transition-transform hover:scale-105 shrink-0 self-end sm:self-auto"
+                      title="Start Today's Quiz"
+                    >
+                      <ArrowRight className="h-5 w-5" />
+                    </button>
+                  </div>
+                ) : (
+                  /* Rows 2 & 3: Clean White Elevated Cards (ABF White Agenda Cards) */
+                  <div className="bg-white text-slate-900 rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-start sm:items-center gap-4">
+                      <div className="text-center sm:text-left shrink-0">
+                        <span className="text-sm sm:text-base font-black text-slate-800 block">
+                          DAY {item.day || idx + 1}
+                        </span>
+                        <span className="text-[11px] text-slate-500 font-medium">
+                          {item.duration || '1.0 hr'}
+                        </span>
+                      </div>
+
+                      <div className="border-l border-slate-200 pl-4">
+                        <h4 className="text-sm font-bold text-slate-900">{item.topic}</h4>
+                        <p className="text-xs text-slate-500 mt-0.5">{item.action || item.activity}</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setActiveTab(TABS.PLANNER)}
+                      className="h-9 w-9 rounded-full border border-slate-200 hover:border-slate-400 text-slate-600 hover:text-slate-900 flex items-center justify-center transition shrink-0 self-end sm:self-auto"
+                      title="View Plan"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </section>
     </div>
   );
