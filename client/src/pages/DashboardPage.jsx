@@ -121,13 +121,13 @@ export default function DashboardPage() {
   return (
     <div className="space-y-10 pb-16">
       {/* 1. TOP HERO CONTAINER (The ABF Plum Stage with 3 White Poster Cards) */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#4a1259] via-[#2d0b38] to-[#180521] p-6 sm:p-8 text-white shadow-xl">
+      <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#4a1259] via-[#2d0b38] to-[#180521] p-4 sm:p-8 text-white shadow-xl">
         {/* Subtle decorative glow */}
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
 
         {/* Top Header Row of the Plum Container */}
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-purple-500/20">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 pb-4 sm:pb-6 border-b border-purple-500/20">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1b0824] border border-purple-500/30 text-xs font-bold text-white shadow-sm">
               <Target className="h-3.5 w-3.5 text-purple-400" />
               <span>
@@ -137,16 +137,16 @@ export default function DashboardPage() {
             </div>
 
             {/* Inline Stat Pills */}
-            <div className="flex items-center gap-2 text-xs text-purple-200/90 flex-wrap">
-              <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 font-semibold">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-purple-200/90 flex-wrap">
+              <span className="px-2.5 sm:px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 font-semibold">
                 {metrics?.overallAccuracy ?? 64}% Accuracy
               </span>
-              <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 font-semibold">
+              <span className="px-2.5 sm:px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 font-semibold">
                 {metrics?.totalAttempts ?? 11} Practiced
               </span>
-              <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-500/30 font-semibold flex items-center gap-1">
+              <span className="px-2.5 sm:px-3 py-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-500/30 font-semibold flex items-center gap-1">
                 <Flame className="h-3 w-3 text-amber-400" />
-                {metrics?.dueFlashcards ?? 3} Mistake Cards Due
+                {metrics?.dueFlashcards ?? 3} Due
               </span>
             </div>
           </div>
@@ -154,7 +154,7 @@ export default function DashboardPage() {
           <button
             onClick={handleResetDemo}
             disabled={isResettingDemo}
-            className="self-start md:self-auto px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs font-semibold text-purple-200 hover:text-white transition flex items-center gap-1.5 shrink-0"
+            className="hidden sm:flex px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs font-semibold text-purple-200 hover:text-white transition items-center gap-1.5 shrink-0 self-start md:self-auto"
             title="Reset demo data to initial state"
           >
             <RotateCcw className={`h-3.5 w-3.5 ${isResettingDemo ? 'animate-spin' : ''}`} />

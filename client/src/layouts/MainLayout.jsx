@@ -235,35 +235,50 @@ export default function MainLayout({ children }) {
       {/* Main Content Area (Light Off-White Canvas) */}
       <div className="flex-1 md:pl-64 flex flex-col min-w-0 min-h-screen">
         {/* Top Canvas Bar (ABF Sub-Navigation & Controls) */}
-        <header className="sticky top-0 z-30 bg-[#f7f6fa]/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 py-3">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-            {/* Left: Mobile hamburger + Active syllabus label */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setMobileSidebarOpen(true)}
-                className="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-slate-900 md:hidden shadow-sm"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                  Current Track
-                </span>
-                <h2 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight truncate max-w-[220px] sm:max-w-md">
-                  {activeSyllabus?.title || 'Microsoft Azure Fundamentals'}
-                </h2>
+        <header className="sticky top-0 z-30 bg-[#f7f6fa]/95 backdrop-blur-md border-b border-slate-200/80 px-3.5 sm:px-8 py-2.5 sm:py-3">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2.5 md:gap-4">
+            {/* Top Row on Mobile / Left Group on Desktop */}
+            <div className="flex items-center justify-between gap-3 w-full md:w-auto">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <button
+                  onClick={() => setMobileSidebarOpen(true)}
+                  className="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-slate-900 md:hidden shadow-sm shrink-0"
+                  aria-label="Open sidebar menu"
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block leading-none">
+                    Current Track
+                  </span>
+                  <h2 className="text-xs sm:text-base font-extrabold text-slate-900 tracking-tight truncate max-w-[210px] sm:max-w-md mt-0.5">
+                    {activeSyllabus?.title || 'Microsoft Azure Fundamentals'}
+                  </h2>
+                </div>
               </div>
+
+              {/* Mobile-only Reset Demo button */}
+              <button
+                onClick={handleResetDemo}
+                disabled={isResettingDemo}
+                className="md:hidden p-2 rounded-full bg-white border border-slate-200/90 text-slate-600 hover:text-slate-900 shadow-sm transition disabled:opacity-50 shrink-0"
+                title="Reset demo data to initial state"
+              >
+                <RotateCcw
+                  className={`h-4 w-4 ${isResettingDemo ? 'animate-spin text-purple-600' : ''}`}
+                />
+              </button>
             </div>
 
-            {/* Right: Language Pill Switcher & Reset Button (ABF Pill Style) */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* Language Pill Switcher (Like ABF's Sessions | My agenda | Experiences bar) */}
-              <div className="flex items-center bg-slate-200/60 p-1 rounded-full text-xs">
+            {/* Bottom Row on Mobile / Right Group on Desktop: Language Pill Switcher & Desktop Reset */}
+            <div className="flex items-center justify-between md:justify-end gap-2.5 w-full md:w-auto">
+              {/* Language Pill Switcher: Full width segmented control on mobile, compact on desktop */}
+              <div className="flex items-center bg-slate-200/70 p-1 rounded-full text-xs w-full md:w-auto">
                 {TONE_MODES.map((mode) => (
                   <button
                     key={mode.id}
                     onClick={() => setLanguageMode(mode.id)}
-                    className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-bold transition ${
+                    className={`flex-1 md:flex-initial px-3 sm:px-4 py-1.5 rounded-full text-xs font-bold transition text-center whitespace-nowrap ${
                       languageMode === mode.id
                         ? 'bg-white text-slate-900 shadow-sm'
                         : 'text-slate-600 hover:text-slate-900'
@@ -275,11 +290,11 @@ export default function MainLayout({ children }) {
                 ))}
               </div>
 
-              {/* Reset Demo Button */}
+              {/* Desktop-only Reset Demo Button */}
               <button
                 onClick={handleResetDemo}
                 disabled={isResettingDemo}
-                className="p-2 rounded-full bg-white border border-slate-200/80 text-slate-600 hover:text-slate-900 shadow-sm hover:shadow transition disabled:opacity-50"
+                className="hidden md:flex p-2 rounded-full bg-white border border-slate-200/80 text-slate-600 hover:text-slate-900 shadow-sm hover:shadow transition disabled:opacity-50 shrink-0"
                 title="Reset demo data to initial state"
               >
                 <RotateCcw
@@ -291,7 +306,7 @@ export default function MainLayout({ children }) {
         </header>
 
         {/* Main Canvas Body */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6 sm:py-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-8 py-4 sm:py-8">
           {children}
         </main>
 
