@@ -15,6 +15,11 @@ const server = app.listen(PORT, async () => {
   // Verify PostgreSQL (Neon) connection
   try {
     await pool.query('ALTER TABLE syllabi ADD COLUMN IF NOT EXISTS source_url TEXT;');
+    await pool.query(
+      `UPDATE syllabi
+       SET source_url = 'https://learn.microsoft.com/credentials/certifications/resources/study-guides/az-900'
+       WHERE code = 'AZ-900' AND (source_url IS NULL OR source_url = '');`
+    );
     const res = await pool.query('SELECT NOW() as current_time');
     console.log('✓ PostgreSQL (Neon) Connected:', res.rows[0].current_time);
   } catch (err) {
