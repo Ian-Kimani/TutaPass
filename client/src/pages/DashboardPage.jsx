@@ -132,7 +132,7 @@ export default function DashboardPage() {
     },
   ];
 
-  if (loadingDashboard) {
+  if (loadingDashboard && !dashboardData) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="flex flex-col items-center gap-3 text-slate-500 text-sm">
@@ -145,6 +145,13 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-10 pb-16">
+      {loadingDashboard && dashboardData && (
+        <div className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-900" role="status">
+          <div className="h-3 w-3 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" />
+          Updating your latest progress… showing the saved study view while the server wakes up.
+        </div>
+      )}
+
       {!hasStarted && (
         <section className="rounded-3xl border border-purple-200 bg-white p-5 shadow-sm sm:p-7" aria-labelledby="first-session-title">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">

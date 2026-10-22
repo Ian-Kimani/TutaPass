@@ -19,6 +19,11 @@ const handleResponse = (response) => {
 };
 
 export const apiService = {
+  healthCheck: async () => {
+    const res = await apiClient.get('/health');
+    return handleResponse(res);
+  },
+
   // Syllabi
   getSyllabi: async () => {
     const res = await apiClient.get('/syllabus');
