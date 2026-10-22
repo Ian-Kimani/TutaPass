@@ -12,6 +12,7 @@ import {
   Globe2,
   Plus,
   ArrowRight,
+  MessageSquareText,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { TONE_MODES } from '../constants/navigation';
@@ -44,6 +45,9 @@ export default function QuizArenaPage() {
 
   // Generate more questions state
   const [generating, setGenerating] = useState(false);
+  const [teachBackText, setTeachBackText] = useState('');
+  const [teachBackResult, setTeachBackResult] = useState(null);
+  const [evaluatingTeachBack, setEvaluatingTeachBack] = useState(false);
 
   // Load questions based on selected syllabus and domain
   const loadQuestions = async () => {
@@ -135,6 +139,34 @@ export default function QuizArenaPage() {
       showToast(`Generation failed: ${err.message}`, 'error');
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleTeachBack = async (event) => {
+    event.preventDefault();
+    if (!currentQ || !currentAttempt || teachBackText.trim().length < 10 || evaluatingTeachBack) return;
+
+    const selectedOption = currentQ.options?.find((option) => option.id === currentAttempt.selectedOptionId);
+    const correctOption = currentQ.options?.find((option) => option.is_correct);
+    try {
+      setEvaluatingTeachBack(true);
+      const result = await apiService.evaluateTeachBack({
+        syllabusTitle: activeSyllabus?.title,
+        question: currentQ.question,
+        scenario: currentQ.scenario,
+        selectedAnswer: selectedOption?.text || '',
+        correctAnswer: correctOption?.text || '',
+        explanation: teachBackText.trim(),
+        questionId: currentQ.id,
+      });
+      setTeachBackResult({
+        ...(result?.evaluation || {}),
+        mistakeCardCreated: Boolean(result?.mistakeCard),
+      });
+    } catch (err) {
+      showToast(`Teach-Back could not check that explanation: ${err.message}`, 'error');
+    } finally {
+      setEvaluatingTeachBack(false);
     }
   };
 
@@ -239,6 +271,8 @@ export default function QuizArenaPage() {
                   onClick={() => {
                     setCurrentIndex((i) => i - 1);
                     setActiveAutopsyOptionId(null);
+                    setTeachBackText('');
+                    setTeachBackResult(null);
                   }}
                   className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-700 transition"
                   title="Previous Question"
@@ -250,6 +284,8 @@ export default function QuizArenaPage() {
                   onClick={() => {
                     setCurrentIndex((i) => i + 1);
                     setActiveAutopsyOptionId(null);
+                    setTeachBackText('');
+                    setTeachBackResult(null);
                   }}
                   className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-700 transition"
                   title="Next Question"
@@ -440,6 +476,61 @@ export default function QuizArenaPage() {
                     </div>
                   </div>
                 )}
+
+                <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 sm:p-5">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-700 text-white">
+                      <MessageSquareText className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-indigo-950">Teach-Back: prove you understand</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-indigo-800">
+                        Explain why your answer is right or wrong in your own words. TutaPass checks your reasoning, not just your guess.
+                      </p>
+                    </div>
+                  </div>
+                  <form onSubmit={handleTeachBack} className="mt-4 space-y-2">
+                    <textarea
+                      value={teachBackText}
+                      onChange={(event) => setTeachBackText(event.target.value)}
+                      rows={3}
+                      minLength={10}
+                      placeholder="I chose this because..."
+                      className="w-full rounded-xl border border-indigo-200 bg-white p-3 text-xs text-slate-800 outline-none transition focus:border-indigo-500"
+                    />
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <span className="text-[11px] text-indigo-700">At least 10 characters</span>
+                      <button
+                        type="submit"
+                        disabled={evaluatingTeachBack || teachBackText.trim().length < 10}
+                        className="rounded-full bg-indigo-700 px-4 py-2 text-xs font-bold text-white transition hover:bg-indigo-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {evaluatingTeachBack ? 'Checking your reasoning...' : 'Check my explanation'}
+                      </button>
+                    </div>
+                  </form>
+                  {teachBackResult && (
+                    <div className={`mt-4 rounded-xl border p-3 text-xs ${
+                      teachBackResult.verdict === 'understood'
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+                        : teachBackResult.verdict === 'lucky_guess'
+                        ? 'border-amber-200 bg-amber-50 text-amber-900'
+                        : 'border-rose-200 bg-rose-50 text-rose-900'
+                    }`}>
+                      <p className="font-black">{teachBackResult.headline}</p>
+                      <p className="mt-1 leading-relaxed">{teachBackResult.feedback}</p>
+                      {teachBackResult.misconception && (
+                        <p className="mt-2 leading-relaxed"><strong>Watch for:</strong> {teachBackResult.misconception}</p>
+                      )}
+                      {teachBackResult.repairAction && (
+                        <p className="mt-2 leading-relaxed"><strong>Next step:</strong> {teachBackResult.repairAction}</p>
+                      )}
+                      {teachBackResult.mistakeCardCreated && (
+                        <p className="mt-2 font-bold">This concept was added to your Mistake Cards for review.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
 
                 {/* Cultural Context Breakdown */}
                 {currentQ.context_translations && (
