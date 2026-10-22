@@ -17,8 +17,6 @@ import { useApp } from '../context/AppContext';
 import { TABS } from '../constants/navigation';
 import ReadinessSprintModal from '../components/ReadinessSprintModal';
 
-const AZ900_SOURCE_URL = 'https://learn.microsoft.com/credentials/certifications/resources/study-guides/az-900';
-
 export default function DashboardPage() {
   const [isSprintOpen, setIsSprintOpen] = useState(false);
   const {
@@ -246,15 +244,17 @@ export default function DashboardPage() {
                       <h3 className="text-sm font-bold text-slate-900 group-hover:text-purple-900 transition mt-0.5 line-clamp-1">
                         {cleanTitle}
                       </h3>
-                      <a
-                        href={AZ900_SOURCE_URL}
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={(event) => event.stopPropagation()}
-                        className="mt-1 inline-block text-[11px] font-semibold text-purple-700 underline underline-offset-2"
-                      >
-                        See official topic guide
-                      </a>
+                      {activeSyllabus?.source_url && (
+                        <a
+                          href={activeSyllabus.source_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={(event) => event.stopPropagation()}
+                          className="mt-1 inline-block text-[11px] font-semibold text-purple-700 underline underline-offset-2"
+                        >
+                          Open official source
+                        </a>
+                      )}
                     </div>
 
                     {/* Thin Progress Bar */}
@@ -287,14 +287,16 @@ export default function DashboardPage() {
               your accuracy, and the official domain weightings. It is a helpful guide, not a promise of a pass.
             </p>
           </div>
-          <a
-            href={AZ900_SOURCE_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="shrink-0 text-xs font-bold text-indigo-700 underline underline-offset-2"
-          >
-            View official skills outline
-          </a>
+          {activeSyllabus?.source_url && (
+            <a
+              href={activeSyllabus.source_url}
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 text-xs font-bold text-indigo-700 underline underline-offset-2"
+            >
+              Open official source
+            </a>
+          )}
         </div>
       </section>
 

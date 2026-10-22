@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, UploadCloud, Sparkles } from 'lucide-react';
+import { X, UploadCloud, Sparkles, Link2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import apiService from '../services/api.service';
 
@@ -60,6 +60,7 @@ export default function SyllabusImportModal() {
   const { isImportModalOpen, setIsImportModalOpen, setActiveSyllabus, setSyllabi, refreshDashboard, showToast } = useApp();
   const [title, setTitle] = useState('');
   const [rawText, setRawText] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -93,7 +94,7 @@ export default function SyllabusImportModal() {
     try {
       setLoading(true);
       setError(null);
-      const res = await apiService.importSyllabus(rawText, title.trim() || undefined);
+      const res = await apiService.importSyllabus(rawText, title.trim() || undefined, sourceUrl.trim());
       
       if (res?.syllabus) {
         // Refresh syllabi list
@@ -103,7 +104,7 @@ export default function SyllabusImportModal() {
         if (refreshDashboard) {
           refreshDashboard(res.syllabus.id);
         }
-        showToast(`Successfully imported "${res.syllabus.title}" with starter questions!`, 'success');
+        showToast(`Created "${res.syllabus.title}" with starter questions!`, 'success');
         setIsImportModalOpen(false);
       }
     } catch (err) {
@@ -130,9 +131,9 @@ export default function SyllabusImportModal() {
                 <UploadCloud className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-white">Universal Syllabus Importer</h3>
+                <h3 className="text-base sm:text-lg font-bold text-white">Create a study track</h3>
                 <p className="text-xs text-purple-200/70">
-                  Transform any curriculum outline into structured study modules with Gemini
+                  Add your subjects once, then practise them in one simple place
                 </p>
               </div>
             </div>
@@ -154,11 +155,11 @@ export default function SyllabusImportModal() {
 
             <div>
               <label className="block text-xs font-semibold text-purple-200 uppercase tracking-wider mb-1">
-                Curriculum / Certification Title (Optional)
+                What are you studying?
               </label>
               <input
                 type="text"
-                placeholder="e.g., AWS Cloud Practitioner, CompTIA Security+, KCSE Math"
+                placeholder="e.g., KCSE Mathematics, AWS Cloud Practitioner"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-[#10031a] border border-[#2e1246] text-slate-100 text-sm focus:outline-none focus:border-purple-500 transition"
@@ -168,7 +169,7 @@ export default function SyllabusImportModal() {
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1.5">
                 <label className="block text-xs font-semibold text-purple-200 uppercase tracking-wider">
-                  Raw Syllabus Text or Topics Outline
+                  Your topics or outline
                 </label>
                 {/* 1-Click Samples */}
                 <div className="flex items-center gap-1.5 flex-wrap">
@@ -198,16 +199,30 @@ export default function SyllabusImportModal() {
               </div>
               <textarea
                 rows={6}
-                placeholder="Paste domains, topic bullets, or exam outline text here..."
+                placeholder="Paste the topics you need to learn, one per line..."
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-[#10031a] border border-[#2e1246] text-slate-100 text-xs font-mono focus:outline-none focus:border-purple-500 transition"
               />
             </div>
 
+            <div>
+              <label className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-purple-200">
+                <Link2 className="h-3.5 w-3.5" /> Official source link (optional)
+              </label>
+              <input
+                type="url"
+                placeholder="Add the page learners should use to verify this topic"
+                value={sourceUrl}
+                onChange={(e) => setSourceUrl(e.target.value)}
+                className="w-full rounded-xl border border-[#2e1246] bg-[#10031a] px-3.5 py-2.5 text-sm text-slate-100 transition focus:border-purple-500 focus:outline-none"
+              />
+              <p className="mt-1 text-[11px] text-purple-200/60">Leave this empty if your track has no single official guide.</p>
+            </div>
+
             {/* AI Parsing Explanation */}
             <div className="p-3 rounded-xl bg-[#1d0a2d] border border-purple-500/20 text-[11px] text-purple-200/80 leading-relaxed">
-              💡 <strong>Automatic Quiz Generation:</strong> Gemini analyzes the outline, detects weight percentages, creates your syllabus track, and automatically synthesizes starter scenario questions with Distractor Autopsies!
+              💡 <strong>What happens next:</strong> We organise your topics, create starter questions, and make a simple study plan. You can edit your plan later.
             </div>
 
             {/* Actions */}
@@ -232,7 +247,7 @@ export default function SyllabusImportModal() {
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    <span>Import & Generate Track</span>
+                    <span>Create study track</span>
                   </>
                 )}
               </button>

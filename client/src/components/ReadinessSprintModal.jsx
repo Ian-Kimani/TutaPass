@@ -18,7 +18,7 @@ export default function ReadinessSprintModal({ onClose }) {
     let mounted = true;
     const loadSprint = async () => {
       try {
-        const result = await apiService.getQuizQuestions(activeSyllabus?.id || null, null, SPRINT_LENGTH);
+        const result = await apiService.getQuizQuestions(activeSyllabus?.id || null, null, SPRINT_LENGTH, true);
         if (mounted) setQuestions((result || []).slice(0, SPRINT_LENGTH));
       } catch (err) {
         if (mounted) setError(err.message || 'We could not load the sprint.');
@@ -76,7 +76,7 @@ export default function ReadinessSprintModal({ onClose }) {
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-purple-700">Quick check</p>
             <h2 className="mt-1 text-2xl font-black text-slate-900">Readiness Sprint</h2>
-            <p className="mt-1 text-sm text-slate-500">Five questions to show what to study next.</p>
+            <p className="mt-1 text-sm text-slate-500">A balanced check across your study topics.</p>
           </div>
           <button onClick={onClose} className="rounded-full p-2 text-slate-500 hover:bg-slate-100" aria-label="Close readiness sprint">
             <X className="h-5 w-5" />
@@ -87,7 +87,10 @@ export default function ReadinessSprintModal({ onClose }) {
           {loading && <p className="py-12 text-center text-sm text-slate-500">Loading your questions...</p>}
           {!loading && error && <p className="py-12 text-center text-sm text-rose-600">{error}</p>}
           {!loading && !error && !currentQuestion && !completed && (
-            <p className="py-12 text-center text-sm text-slate-500">There are no questions ready for this track yet.</p>
+            <div className="py-12 text-center">
+              <p className="text-sm text-slate-500">There are no questions ready for this track yet.</p>
+              <p className="mt-1 text-xs text-slate-400">Try creating the track again with more topic details.</p>
+            </div>
           )}
           {!loading && completed && (
             <div className="space-y-5 text-center">
@@ -159,8 +162,13 @@ export default function ReadinessSprintModal({ onClose }) {
               {currentAnswer && (
                 <div className={`rounded-2xl p-4 text-sm ${currentAnswer.isCorrect ? 'bg-emerald-50 text-emerald-900' : 'bg-rose-50 text-rose-900'}`}>
                   <p className="font-bold">{currentAnswer.isCorrect ? 'Correct. Nice reasoning.' : 'Not quite. This is now a Mistake Card.'}</p>
-                  {currentAnswer.autopsy?.why_wrong && !currentAnswer.isCorrect && (
-                    <p className="mt-1 leading-relaxed">{currentAnswer.autopsy.why_wrong}</p>
+                  {currentAnswer.autopsy && (
+                    <div className="mt-2 space-y-1 leading-relaxed">
+                      <p>{currentAnswer.isCorrect ? currentAnswer.autopsy.right_scenario : currentAnswer.autopsy.why_wrong}</p>
+                      {!currentAnswer.isCorrect && currentAnswer.autopsy.right_scenario && (
+                        <p className="text-xs opacity-80"><strong>When it would be right:</strong> {currentAnswer.autopsy.right_scenario}</p>
+                      )}
+                    </div>
                   )}
                   <button onClick={nextQuestion} className="mt-3 inline-flex items-center gap-1 rounded-full bg-white px-4 py-2 text-xs font-bold shadow-sm">
                     {currentIndex === questions.length - 1 ? 'See my result' : 'Next question'} <ChevronRight className="h-4 w-4" />

@@ -23,7 +23,7 @@ Beginners can memorise Azure service names and still struggle with questions tha
 - **Simple explanations:** learners can switch between formal English, African everyday examples, and optional Kenyan/Sheng phrasing.
 - **Transparent readiness:** the estimate shows the evidence behind it instead of pretending to be an exam guarantee.
 - **Original content:** questions are written from the public AZ-900 skills outline, not copied exam dumps.
-- **Universal engine:** the syllabus importer can support other certification tracks, while AZ-900 remains the polished flagship experience.
+- **Study track creator:** learners can add another subject with its own optional source link, while AZ-900 remains the polished flagship experience.
 
 ## Learning sources and compliance
 

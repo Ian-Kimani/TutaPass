@@ -14,6 +14,7 @@ CREATE TABLE syllabi (
     title VARCHAR(255) NOT NULL,
     code VARCHAR(50) DEFAULT 'AZ-900',
     description TEXT,
+    source_url TEXT,
     is_flagship BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

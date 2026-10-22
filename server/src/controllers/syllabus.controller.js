@@ -13,6 +13,7 @@ const getAllSyllabi = asyncHandler(async (req, res) => {
       s.title, 
       s.code, 
       s.description, 
+      s.source_url,
       s.is_flagship, 
       s.created_at,
       COALESCE(
@@ -41,7 +42,7 @@ const getAllSyllabi = asyncHandler(async (req, res) => {
  * Uses Gemini to parse raw outline text into structured domains, then persists to Neon.
  */
 const importSyllabus = asyncHandler(async (req, res) => {
-  const { rawText, title } = req.body;
+  const { rawText, title, sourceUrl } = req.body;
 
   const { result, promptTelemetry } = await geminiService.parseSyllabus({
     rawText,
@@ -54,13 +55,14 @@ const importSyllabus = asyncHandler(async (req, res) => {
 
   // Insert into syllabi table
   const syllabusInsert = await db.query(
-    `INSERT INTO syllabi (title, code, description, is_flagship)
-     VALUES ($1, $2, $3, false)
-     RETURNING id, title, code, description, is_flagship, created_at;`,
+    `INSERT INTO syllabi (title, code, description, source_url, is_flagship)
+     VALUES ($1, $2, $3, $4, false)
+     RETURNING id, title, code, description, source_url, is_flagship, created_at;`,
     [
       result.title || title || 'Custom Imported Syllabus',
       result.code || 'CUSTOM',
       result.description || 'Imported curriculum via TutaPass Universal Importer',
+      sourceUrl?.trim() || null,
     ]
   );
 
