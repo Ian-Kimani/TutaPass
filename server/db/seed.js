@@ -258,7 +258,7 @@ async function seed() {
             is_correct: true,
             autopsy: {
               why_wrong: 'N/A - This is the correct choice.',
-              right_scenario: 'Executing lightweight code only when triggered by events (e.g., blob upload, queue message) with automatic scale-to-zero and microsecond billing.',
+              right_scenario: 'Executing lightweight code only when triggered by events (e.g., blob upload or queue message) with automatic scaling and consumption-based pricing.',
               trap: 'N/A'
             }
           },
@@ -518,4 +518,3 @@ async function seed() {
 }
 
 seed();
-

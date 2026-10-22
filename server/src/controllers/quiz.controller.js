@@ -5,6 +5,26 @@ const geminiService = require('../services/gemini.service');
 const asyncHandler = require('../utils/asyncHandler');
 const { sendSuccess, sendError } = require('../utils/apiResponse');
 
+const isValidGeneratedQuestion = (question) => (
+  question &&
+  typeof question.scenario === 'string' &&
+  question.scenario.trim().length > 20 &&
+  typeof question.question === 'string' &&
+  question.question.trim().length > 10 &&
+  Array.isArray(question.options) &&
+  question.options.length === 4 &&
+  question.options.filter((option) => option && option.is_correct === true).length === 1 &&
+  question.options.every((option) =>
+    option &&
+    typeof option.id === 'string' &&
+    typeof option.text === 'string' &&
+    option.autopsy &&
+    typeof option.autopsy.why_wrong === 'string' &&
+    typeof option.autopsy.right_scenario === 'string' &&
+    typeof option.autopsy.trap === 'string'
+  )
+);
+
 /**
  * Fetch scenario quiz questions with Distractor Autopsies.
  * Filters dynamically by syllabusId and/or domainId.
@@ -158,6 +178,15 @@ const generateMoreQuestions = asyncHandler(async (req, res) => {
     count: Math.min(parseInt(count, 10) || 2, 5),
     difficulty,
   });
+
+  if (!Array.isArray(generatedQuestions) || generatedQuestions.length === 0 || !generatedQuestions.every(isValidGeneratedQuestion)) {
+    return sendError(
+      res,
+      'The question generator returned an incomplete question. No question was saved; please try again.',
+      502,
+      { status: promptTelemetry?.status || 'unknown', model: promptTelemetry?.modelUsed || 'unknown' }
+    );
+  }
 
   const savedQuestions = [];
 

@@ -57,7 +57,7 @@ The React frontend uses a clean single-page dashboard with 4 focused tabs, plus 
   - Built-in SuperMemo-2 (SM-2) spaced repetition intervals (`Forgot`, `Hard`, `Good`, `Easy`) so learners review at the optimal forgetting curve.
 * **Top Navbar: Judge's Prompt X-Ray Drawer**:
   - Slide-out side drawer accessible anywhere in the app with one click.
-  - Displays the raw AI prompt, injected context, model name (`gemini-3.8-flash`), temperature, and prompt engineering rationale for hackathon judges evaluating the 20% prompt criteria.
+  - Displays the raw AI prompt, injected context, actual model name or fallback status, temperature, and prompt engineering rationale for hackathon judges evaluating the 20% prompt criteria.
 
 ---
 
@@ -93,7 +93,7 @@ Instead of shallow answers, every multiple-choice option provides:
   - System Instructions & Role Definitions.
   - Few-shot examples & JSON output schema enforcement.
   - Negative constraints (strict prohibition of real exam dumps or trademark misuse).
-  - Model telemetry: `gemini-3.8-flash` (with fallback to `gemini-2.5-flash`).
+  - Model telemetry: the actual Gemini Flash alias used, or an explicit simulated offline fallback status.
 
 ---
 
@@ -104,7 +104,7 @@ Instead of shallow answers, every multiple-choice option provides:
 | **Frontend** | React 18 (Vite) + Tailwind CSS + Lucide React | Blazing fast, responsive single-page dashboard with zero boilerplate |
 | **Backend** | Node.js + Express (`server/`) | Lightweight REST API, prompt orchestration, database queries |
 | **Database** | PostgreSQL (`pg`) | Reliable relational data for user plans, questions, and flashcard SRS |
-| **AI Engine** | Google Gemini (`@google/genai`) | High-speed, structured JSON generation with `gemini-3.8-flash` |
+| **AI Engine** | Google Gemini (`@google/genai`) | High-speed, structured JSON generation with Flash model fallback |
 
 ---
 
