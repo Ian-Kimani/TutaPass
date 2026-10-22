@@ -10,20 +10,30 @@ Beginners can memorise Azure service names and still struggle with questions tha
 
 ## The five-minute demo
 
-1. Open the dashboard and choose **Start 5-question check**.
-2. Answer a question and read the feedback. A wrong answer becomes a Mistake Card automatically.
-3. Open **Mistake Cards** and review the card using English, an African real-life analogy, or optional Sheng.
-4. Return to the dashboard to see the updated readiness estimate and the reason behind the recommendation.
-5. Open **Prompt X-Ray** to inspect the live prompt, guardrails, output format, and whether Gemini or the offline fallback supplied the result.
+1. Use **Reset demo** on the dashboard to restore a reliable seeded learner journey.
+2. Open the dashboard and choose a topic from **Your progress by topic**.
+3. Answer a practice question and read the Distractor Autopsy feedback. A wrong answer becomes a Mistake Card automatically.
+4. Use **Teach-Back** to explain your reasoning, then open **Mistake Cards** to review any uncertain concept.
+5. Return to the dashboard to see the Misconception Map and progress story.
+6. Open **Prompt X-Ray** to inspect the live prompt, guardrails, output format, and whether Gemini or the offline fallback supplied the result.
 
 ## What makes it different
 
 - **Distractor Autopsy:** explains why an option is wrong, when it would be right, and the trap it represents.
 - **Mistake-to-memory loop:** missed questions become SM-2 spaced-repetition cards without manual entry.
+- **Teach-Back Mode:** checks whether a learner can explain an answer, not just select it.
+- **Misconception Map:** turns weak domains into a clear “what to practise next” view.
+- **Progress story:** describes improvement in plain language instead of showing only a score.
 - **Simple explanations:** learners can switch between formal English, African everyday examples, and optional Kenyan/Sheng phrasing.
 - **Transparent readiness:** the estimate shows the evidence behind it instead of pretending to be an exam guarantee.
 - **Original content:** questions are written from the public AZ-900 skills outline, not copied exam dumps.
 - **Study track creator:** learners can add another subject with its own optional source link, while AZ-900 remains the polished flagship experience.
+
+### The TutaPass Mastery Loop
+
+**Answer → Explain → Understand the mistake → Review → Improve**
+
+Most quiz apps tell learners whether they are right. TutaPass checks whether they understand why.
 
 ## Learning sources and compliance
 

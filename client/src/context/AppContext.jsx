@@ -15,6 +15,7 @@ export const AppProvider = ({ children }) => {
   const [syllabi, setSyllabi] = useState([]);
   const [activeSyllabus, setActiveSyllabus] = useState(null);
   const [dashboardData, setDashboardData] = useState(null);
+  const [flashcards, setFlashcards] = useState([]);
   const [loadingDashboard, setLoadingDashboard] = useState(true);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -76,6 +77,8 @@ Output strictly valid JSON with no markdown wrapping.`,
       const sylId = targetSyllabusId !== null ? targetSyllabusId : (activeSyllabus?.id || null);
       const data = await apiService.getDashboard('demo-learner', sylId);
       setDashboardData(data);
+      const flashcardData = await apiService.getFlashcards('demo-learner', sylId);
+      setFlashcards(flashcardData?.flashcards || []);
     } catch (err) {
       console.warn('Could not load dashboard data:', err.message);
     } finally {
@@ -128,6 +131,7 @@ Output strictly valid JSON with no markdown wrapping.`,
     activeSyllabus,
     setActiveSyllabus,
     dashboardData,
+    flashcards,
     loadingDashboard,
     refreshDashboard,
     promptTelemetry,

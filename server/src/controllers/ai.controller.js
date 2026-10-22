@@ -1,4 +1,6 @@
 const geminiService = require('../services/gemini.service');
+const db = require('../config/db');
+const srsService = require('../services/srs.service');
 const asyncHandler = require('../utils/asyncHandler');
 const { sendSuccess, sendError } = require('../utils/apiResponse');
 
@@ -33,6 +35,45 @@ const explainConcept = asyncHandler(async (req, res) => {
   );
 });
 
+const evaluateTeachBack = asyncHandler(async (req, res) => {
+  const {
+    syllabusTitle,
+    question,
+    scenario,
+    selectedAnswer,
+    correctAnswer,
+    explanation,
+    questionId,
+    userId = 'demo-learner',
+  } = req.body;
+
+  if ([question, scenario, selectedAnswer, correctAnswer, explanation].some(
+    (value) => typeof value !== 'string' || value.trim().length < 2
+  )) {
+    return sendError(res, 'Question, answers, and explanation are required.', 400);
+  }
+
+  const { result, promptTelemetry } = await geminiService.evaluateTeachBack({
+    syllabusTitle: syllabusTitle || 'Exam Preparation',
+    question: question.trim(),
+    scenario: scenario.trim(),
+    selectedAnswer: selectedAnswer.trim(),
+    correctAnswer: correctAnswer.trim(),
+    explanation: explanation.trim(),
+  });
+
+  let mistakeCard = null;
+  if (result?.verdict !== 'understood' && questionId) {
+    mistakeCard = await srsService.createOrUpdateWeakSpotFlashcard(db, {
+      userId,
+      questionId,
+    });
+  }
+
+  return sendSuccess(res, { evaluation: result, mistakeCard }, promptTelemetry);
+});
+
 module.exports = {
   explainConcept,
+  evaluateTeachBack,
 };

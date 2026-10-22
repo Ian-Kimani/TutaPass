@@ -91,6 +91,11 @@ export const apiService = {
     const res = await apiClient.post('/ai/explain', { concept, topic, mode });
     return handleResponse(res);
   },
+
+  evaluateTeachBack: async (payload) => {
+    const res = await apiClient.post('/ai/teach-back', payload);
+    return handleResponse(res);
+  },
 };
 
 export default apiService;
