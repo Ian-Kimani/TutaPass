@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { CheckCircle2, ChevronRight, Flame, X, XCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import apiService from '../services/api.service';
@@ -13,6 +13,7 @@ export default function ReadinessSprintModal({ onClose }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const advanceTimerRef = useRef(null);
 
   useEffect(() => {
     let mounted = true;
@@ -29,6 +30,7 @@ export default function ReadinessSprintModal({ onClose }) {
     loadSprint();
     return () => {
       mounted = false;
+      if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
     };
   }, [activeSyllabus?.id]);
 
@@ -59,15 +61,23 @@ export default function ReadinessSprintModal({ onClose }) {
           topic: currentQuestion.topic_tag,
         },
       }));
-      await refreshDashboard();
+      // Keep the sprint responsive; readiness can update in the background.
+      refreshDashboard().catch(() => {});
+      advanceTimerRef.current = window.setTimeout(() => {
+        setCurrentIndex((index) => index + 1);
+        setSubmitting(false);
+      }, 900);
     } catch (err) {
       showToast(`Could not save your answer: ${err.message}`, 'error');
-    } finally {
       setSubmitting(false);
     }
   };
 
-  const nextQuestion = () => setCurrentIndex((index) => index + 1);
+  const nextQuestion = () => {
+    if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
+    setSubmitting(false);
+    setCurrentIndex((index) => index + 1);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
@@ -173,6 +183,7 @@ export default function ReadinessSprintModal({ onClose }) {
                   <button onClick={nextQuestion} className="mt-3 inline-flex items-center gap-1 rounded-full bg-white px-4 py-2 text-xs font-bold shadow-sm">
                     {currentIndex === questions.length - 1 ? 'See my result' : 'Next question'} <ChevronRight className="h-4 w-4" />
                   </button>
+                  <p className="mt-2 text-[11px] opacity-70">Moving to the next question...</p>
                 </div>
               )}
             </div>
