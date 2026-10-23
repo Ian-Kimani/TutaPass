@@ -262,7 +262,7 @@ npm run dev
 
 ---
 
-## 9. How Judges Can Test TutaPass in 2 Minutes
+## 9. How ToTest TutaPass in 2 Minutes
 
 No login wall or account registration is required. Open https://tuta-pass.vercel.app/ and follow this 5-step evaluation flow:
 
