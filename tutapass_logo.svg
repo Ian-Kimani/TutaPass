@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b0f4a"/>
+      <stop offset="50%" stop-color="#1e0729"/>
+      <stop offset="100%" stop-color="#0e0314"/>
+    </linearGradient>
+
+    <!-- Emblem Violet Gradient -->
+    <linearGradient id="emblemViolet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d946ef"/>
+      <stop offset="50%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+
+    <!-- Gold Accent Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <!-- Inner Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="800" height="800" rx="160" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle Outer Border -->
+  <rect width="792" height="792" x="4" y="4" rx="156" fill="none" stroke="#6b21a8" stroke-width="4" stroke-opacity="0.4"/>
+
+  <!-- Glowing Circular Cyber Frame -->
+  <circle cx="400" cy="330" r="190" fill="none" stroke="#a855f7" stroke-width="2" stroke-opacity="0.25"/>
+  <circle cx="400" cy="330" r="170" fill="#170624" stroke="url(#emblemViolet)" stroke-width="5" filter="url(#subtleGlow)"/>
+
+  <!-- Neural Circuit Tracks & Nodes -->
+  <g stroke="#9333ea" stroke-width="3" stroke-linecap="round" opacity="0.6">
+    <line x1="280" y1="330" x2="240" y2="330"/>
+    <line x1="520" y1="330" x2="560" y2="330"/>
+    <line x1="400" y1="210" x2="400" y2="170"/>
+    <line x1="320" y1="250" x2="280" y2="210"/>
+    <line x1="480" y1="250" x2="520" y2="210"/>
+  </g>
+
+  <!-- Golden Circuit Nodes -->
+  <circle cx="240" cy="330" r="6" fill="#f59e0b"/>
+  <circle cx="560" cy="330" r="6" fill="#f59e0b"/>
+  <circle cx="400" cy="170" r="7" fill="#f59e0b"/>
+  <circle cx="280" cy="210" r="5" fill="#a855f7"/>
+  <circle cx="520" cy="210" r="5" fill="#a855f7"/>
+
+  <!-- Center Emblem: Stylized TutaPass 'T' + Ascending Victory Arrow -->
+  <!-- Top Crossbar of 'T' -->
+  <path d="M290 270 C290 255, 310 245, 330 245 L470 245 C490 245, 510 255, 510 270 C510 285, 490 295, 470 295 L330 295 C310 295, 290 285, 290 270 Z" 
+        fill="url(#emblemViolet)" filter="url(#subtleGlow)"/>
+
+  <!-- Stem of 'T' with Victory / Rocket Arrow Cutout -->
+  <path d="M370 295 L430 295 L430 410 L455 390 L400 455 L345 390 L370 410 Z" 
+        fill="url(#emblemViolet)"/>
+
+  <!-- Central Golden Victory Diamond Core -->
+  <polygon points="400,290 415,310 400,330 385,310" fill="url(#goldGrad)" filter="url(#glow)"/>
+
+  <!-- Brand Wordmark Typography -->
+  <!-- Main Brand Title: TutaPass -->
+  <text x="400" y="610" 
+        font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+        font-size="82" 
+        font-weight="900" 
+        letter-spacing="-2" 
+        text-anchor="middle" 
+        fill="#ffffff">
+    Tuta<tspan fill="#c084fc">Pass</tspan>
+  </text>
+
+  <!-- Tagline: AFRICA AI PREP -->
+  <g transform="translate(400, 665)">
+    <!-- Pill background for tagline -->
+    <rect x="-140" y="-22" width="280" height="34" rx="17" fill="#2a0d3a" stroke="#8b5cf6" stroke-width="1.5" stroke-opacity="0.4"/>
+    <text x="0" y="2" 
+          font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+          font-size="16" 
+          font-weight="800" 
+          letter-spacing="5" 
+          text-anchor="middle" 
+          fill="#f59e0b">
+      AFRICA AI PREP
+    </text>
+  </g>
+</svg>
