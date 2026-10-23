@@ -137,12 +137,74 @@ TutaPass is designed to be useful without pretending to be an official exam auth
 - A safe fallback keeps the demo usable when the AI service is slow or unavailable.
 - The readiness score is a learning signal, not a promise of an exam result.
 
+## How the AI is designed
+
+TutaPass uses AI for a specific learning job, not as a generic chatbot:
+
+1. **Structured output:** Gemini responses are requested and validated as JSON so the interface receives predictable fields instead of an unstructured wall of text.
+2. **Distractor Autopsy rules:** Every generated option is expected to explain why it fits or fails, when it would be correct, and what misconception it represents.
+3. **Curriculum grounding:** Questions are tied to the active study track and its public learning outline.
+4. **Responsible boundaries:** Prompts explicitly prohibit exam dumps, proprietary question copying, and Microsoft branding.
+5. **Fallback behavior:** If the AI service is unavailable, deterministic fallback content keeps the core demo usable.
+
+The **AI Transparency Lab** makes these decisions visible to judges without forcing learners to read technical prompt details.
+
 ## Tech stack
 
 - **Client:** React 18, Vite, Tailwind CSS, Lucide React
 - **Server:** Node.js, Express, PostgreSQL
 - **AI:** Google Gemini through `@google/genai`, with an explicit offline fallback
 - **Learning engine:** SM-2 spaced repetition for Mistake Cards
+
+## Architecture
+
+```text
+React + Vite client
+        │
+        │ REST/JSON API
+        ▼
+Express + Node.js server
+        ├── Gemini service with structured output and fallback
+        ├── Readiness and domain mastery engine
+        └── SM-2 spaced-repetition service
+        │
+        ├── PostgreSQL
+        └── Google Gemini API
+```
+
+The client is organised around four simple views:
+
+- **Home:** readiness evidence, topic progress, Misconception Map, and study plan
+- **Study Plan:** a daily checklist based on the learner's weak areas
+- **Practice Quiz:** scenarios, Distractor Autopsy, cultural explanations, and Teach-Back
+- **Mistake Cards:** due reviews and SM-2 recall ratings
+
+## API highlights
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/health` | Confirms that the deployed API is awake |
+| `GET` | `/api/syllabus` | Lists available study tracks and domains |
+| `POST` | `/api/syllabus/import` | Creates a study track from a learner's outline |
+| `GET` | `/api/dashboard` | Returns readiness evidence, domain progress, and the active plan |
+| `POST` | `/api/dashboard/plan` | Saves an adaptive study plan |
+| `POST` | `/api/dashboard/reset-demo` | Restores the seeded presentation state |
+| `GET` | `/api/quiz` | Fetches questions for a track or domain |
+| `POST` | `/api/quiz/attempt` | Grades an answer and returns Distractor Autopsy feedback |
+| `POST` | `/api/ai/teach-back` | Evaluates a learner's explanation |
+| `POST` | `/api/ai/explain` | Explains a concept in the selected language mode |
+| `GET` | `/api/flashcards` | Lists Mistake Cards and due reviews |
+| `POST` | `/api/flashcards/:id/review` | Applies an SM-2 recall rating |
+
+## Data model
+
+The PostgreSQL schema keeps the learning loop explicit:
+
+- `syllabi` and `domains` define a study track and its weighted topics.
+- `quiz_questions` stores original scenario questions, options, autopsies, and context translations.
+- `user_attempts` records practice evidence used for progress and readiness.
+- `flashcards` stores Mistake Cards and their SM-2 review state.
+- `study_plans` stores personalised daily agendas.
 
 ## Run locally
 
