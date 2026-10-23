@@ -19,14 +19,19 @@ const handleResponse = (response) => {
 };
 
 export const apiService = {
+  healthCheck: async () => {
+    const res = await apiClient.get('/health');
+    return handleResponse(res);
+  },
+
   // Syllabi
   getSyllabi: async () => {
     const res = await apiClient.get('/syllabus');
     return handleResponse(res);
   },
 
-  importSyllabus: async (rawText, title) => {
-    const res = await apiClient.post('/syllabus/import', { rawText, title });
+  importSyllabus: async (rawText, title, sourceUrl = '') => {
+    const res = await apiClient.post('/syllabus/import', { rawText, title, sourceUrl });
     return handleResponse(res);
   },
 
@@ -51,11 +56,12 @@ export const apiService = {
   },
 
   // Quiz Arena
-  getQuizQuestions: async (syllabusId = null, domainId = null, limit = 20) => {
+  getQuizQuestions: async (syllabusId = null, domainId = null, limit = 20, balanced = false) => {
     const params = new URLSearchParams();
     if (syllabusId) params.append('syllabusId', syllabusId);
     if (domainId) params.append('domainId', domainId);
     params.append('limit', limit);
+    if (balanced) params.append('balanced', 'true');
     const res = await apiClient.get(`/quiz?${params.toString()}`);
     return handleResponse(res);
   },
@@ -88,6 +94,11 @@ export const apiService = {
   // On-demand AI Explanation
   explainConcept: async (concept, topic, mode = 'african_context') => {
     const res = await apiClient.post('/ai/explain', { concept, topic, mode });
+    return handleResponse(res);
+  },
+
+  evaluateTeachBack: async (payload) => {
+    const res = await apiClient.post('/ai/teach-back', payload);
     return handleResponse(res);
   },
 };

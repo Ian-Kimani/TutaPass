@@ -196,9 +196,9 @@ export default function MainLayout({ children }) {
             </div>
             <div className="min-w-0">
               <div className="text-[10px] uppercase font-bold text-purple-300/80 tracking-wider">
-                Add another exam
+                Create a study track
               </div>
-              <div className="text-xs font-bold text-white truncate">+ Add an exam</div>
+              <div className="text-xs font-bold text-white truncate">+ Add a subject or exam</div>
             </div>
           </button>
 
@@ -222,7 +222,7 @@ export default function MainLayout({ children }) {
                   20%
                 </span>
               </div>
-              <div className="text-xs font-bold text-white truncate">See how the AI works</div>
+              <div className="text-xs font-bold text-white truncate">AI Transparency Lab</div>
             </div>
           </button>
 

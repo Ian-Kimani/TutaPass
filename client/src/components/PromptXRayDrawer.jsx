@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { X, Copy, Check, Sparkles, Terminal, ShieldAlert, Cpu, Gauge, Zap } from 'lucide-react';
+import { X, Copy, Check, Sparkles, Terminal, ShieldAlert, Cpu, Gauge, Zap, ChevronDown, Lightbulb, LockKeyhole } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export default function PromptXRayDrawer() {
   const { isXRayOpen, setIsXRayOpen, promptTelemetry } = useApp();
   const [copied, setCopied] = useState(false);
+  const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
 
   if (!isXRayOpen) return null;
 
@@ -42,14 +43,14 @@ export default function PromptXRayDrawer() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                      Judge's Prompt X-Ray
+                      AI Transparency Lab
                     </h2>
                     <span className="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">
                       20% Criteria
                     </span>
                   </div>
                   <p className="text-xs text-purple-200/70">
-                    Live system prompt transparency & prompt engineering telemetry
+                    A clear look at how TutaPass makes AI useful for learning
                   </p>
                 </div>
               </div>
@@ -112,10 +113,53 @@ export default function PromptXRayDrawer() {
             <div className="p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-xs leading-relaxed text-indigo-200 flex items-start gap-3">
               <Sparkles className="h-5 w-5 text-indigo-400 shrink-0 mt-0.5" />
               <div>
-                <strong className="text-indigo-100 font-semibold">How TutaPass Evaluates for 20% Prompt Engineering:</strong>
+                <strong className="text-indigo-100 font-semibold">Built for the 20% prompt-engineering criterion</strong>
                 <p className="mt-1 text-slate-300">
-                  Every AI interaction uses strict JSON schema enforcement, multi-mode cultural persona framing (Standard English, African Real-Life Analogies, and Nairobi Sheng), and our signature <strong>Distractor Autopsy</strong> requirement which forces the LLM to dissect <em>why wrong options are wrong AND when they would be right</em>.
+                  TutaPass does not ask AI for a generic answer. It gives the model a learning job: explain every distractor, detect misconceptions, adapt the explanation style, and return a predictable structure the app can safely use.
                 </p>
+              </div>
+            </div>
+
+            {/* Outcome summary */}
+            <div className="rounded-2xl border border-emerald-500/25 bg-emerald-950/25 p-4">
+              <div className="flex items-start gap-3">
+                <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" />
+                <div>
+                  <h3 className="text-sm font-bold text-emerald-100">What this produces for a learner</h3>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                    {[
+                      ['Understand', 'Why the correct answer works'],
+                      ['Compare', 'Why tempting answers fail'],
+                      ['Improve', 'A Mistake Card and next step'],
+                    ].map(([title, copy]) => (
+                      <div key={title} className="rounded-xl border border-emerald-400/15 bg-black/15 p-3">
+                        <div className="text-xs font-bold text-emerald-200">{title}</div>
+                        <div className="mt-1 text-[11px] leading-relaxed text-slate-300">{copy}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Live example */}
+            <div className="rounded-2xl border border-amber-500/25 bg-amber-950/20 p-4">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-200">
+                <Zap className="h-3.5 w-3.5" /> Live learning example
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl bg-black/20 p-3">
+                  <div className="text-[10px] font-bold uppercase text-amber-300/70">Learner input</div>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-200">
+                    “I chose Availability Zones because they protect VMs from a whole data-centre outage.”
+                  </p>
+                </div>
+                <div className="rounded-xl bg-black/20 p-3">
+                  <div className="text-[10px] font-bold uppercase text-amber-300/70">TutaPass response</div>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-200">
+                    “Understood. Your explanation identifies the key distinction, so this concept does not need a new Mistake Card.”
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -137,6 +181,20 @@ export default function PromptXRayDrawer() {
               </div>
             </div>
 
+            <button
+              type="button"
+              onClick={() => setShowTechnicalDetails((visible) => !visible)}
+              className="flex w-full items-center justify-between rounded-xl border border-purple-500/25 bg-purple-950/20 p-3 text-left text-xs font-bold text-purple-100 transition hover:bg-purple-950/40 focus:outline-none focus:ring-2 focus:ring-purple-400"
+              aria-expanded={showTechnicalDetails}
+            >
+              <span className="flex items-center gap-2">
+                <LockKeyhole className="h-4 w-4 text-purple-300" />
+                View technical prompt details
+              </span>
+              <ChevronDown className={`h-4 w-4 transition-transform ${showTechnicalDetails ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showTechnicalDetails && <div className="space-y-5">
             {/* System Instruction */}
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -164,6 +222,7 @@ export default function PromptXRayDrawer() {
                 {promptTelemetry?.userPrompt || 'No prompt dispatched yet.'}
               </div>
             </div>
+            </div>}
           </div>
 
           {/* Footer */}

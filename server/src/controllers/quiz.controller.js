@@ -65,8 +65,10 @@ const getQuestions = asyncHandler(async (req, res) => {
     query += ` WHERE ` + whereClauses.join(' AND ');
   }
 
-  params.push(parseInt(limit, 10) || 20);
-  query += ` ORDER BY qq.id ASC LIMIT $${params.length};`;
+  const requestedLimit = Math.min(parseInt(limit, 10) || 20, 100);
+  const balanced = req.query.balanced === 'true';
+  params.push(balanced ? 100 : requestedLimit);
+  query += ` ORDER BY ${balanced ? 'random()' : 'qq.id ASC'} LIMIT $${params.length};`;
 
   const { rows } = await db.query(query, params);
 
@@ -79,6 +81,29 @@ const getQuestions = asyncHandler(async (req, res) => {
         ? JSON.parse(q.context_translations)
         : q.context_translations,
   }));
+
+  if (balanced && requestedLimit > 0) {
+    const byDomain = new Map();
+    parsedRows.forEach((question) => {
+      const domainQuestions = byDomain.get(question.domain_id) || [];
+      domainQuestions.push(question);
+      byDomain.set(question.domain_id, domainQuestions);
+    });
+    const balancedRows = [];
+    let domainIndex = 0;
+    const domainIds = [...byDomain.keys()];
+    while (balancedRows.length < requestedLimit && domainIds.length > 0) {
+      const domainIdForRound = domainIds[domainIndex % domainIds.length];
+      const domainQuestions = byDomain.get(domainIdForRound);
+      if (domainQuestions.length > 0) balancedRows.push(domainQuestions.shift());
+      if (domainQuestions.length === 0) {
+        domainIds.splice(domainIndex % domainIds.length, 1);
+      } else {
+        domainIndex += 1;
+      }
+    }
+    return sendSuccess(res, balancedRows);
+  }
 
   return sendSuccess(res, parsedRows);
 });

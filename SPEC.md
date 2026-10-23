@@ -63,12 +63,12 @@ The React frontend uses a clean single-page dashboard with 4 focused tabs, plus 
 
 ## 3. Core Features in Detail
 
-### 3.1 Unofficial AZ-900 Flagship + Universal Syllabus Importer
+### 3.1 Unofficial AZ-900 Flagship + Study Track Creator
 * **AZ-900 Out of the Box**: Pre-loaded with official domain weightings:
   1. *Cloud Concepts* (25–30%)
   2. *Azure Architecture and Services* (35–40%)
   3. *Azure Management and Governance* (30–35%)
-* **Universal Importer**: Paste any syllabus outline text $\rightarrow$ Gemini extracts domain names, estimated weights, and generated starter topics.
+* **Study Track Creator**: Add any subject or exam outline, an optional official source link, and Gemini extracts domain names, estimated weights, and generated starter topics.
 
 ### 3.2 The "Distractor Autopsy" Engine
 Instead of shallow answers, every multiple-choice option provides:
