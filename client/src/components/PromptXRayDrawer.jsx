@@ -46,7 +46,7 @@ export default function PromptXRayDrawer() {
                       AI Transparency Lab
                     </h2>
                     <span className="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">
-                      20% Criteria
+                      Judges only
                     </span>
                   </div>
                   <p className="text-xs text-purple-200/70">
@@ -109,6 +109,10 @@ export default function PromptXRayDrawer() {
 
           {/* Drawer Content */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+            <div className="rounded-xl border border-amber-500/30 bg-amber-950/30 p-3 text-xs leading-relaxed text-amber-100">
+              <strong>Evaluation-only panel.</strong> This is not part of the learner study flow. It is included so hackathon judges can inspect how TutaPass guides and constrains its AI.
+            </div>
+
             {/* Judge Evaluation Note */}
             <div className="p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-xs leading-relaxed text-indigo-200 flex items-start gap-3">
               <Sparkles className="h-5 w-5 text-indigo-400 shrink-0 mt-0.5" />

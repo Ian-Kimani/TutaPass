@@ -80,7 +80,7 @@ Learners can switch between:
 
 ### AI Transparency Lab
 
-Judges and technically curious users can inspect how TutaPass uses AI without making the normal learner experience complicated. The lab shows:
+This is an **evaluation-only panel for hackathon judges**, not a required learner workflow. It lets judges and technically curious users inspect how TutaPass uses AI without making the normal learner experience complicated. The lab shows:
 
 - The learning outcome produced by the AI
 - The prompt-engineering techniques being used

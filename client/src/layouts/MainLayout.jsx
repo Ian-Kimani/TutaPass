@@ -216,7 +216,7 @@ export default function MainLayout({ children }) {
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] uppercase font-bold text-purple-300/80 tracking-wider">
-                  For the judges
+                  For judges only
                 </span>
                 <span className="text-[9px] font-bold px-1.5 py-0.2 bg-purple-500/30 text-purple-200 rounded font-mono">
                   20%
