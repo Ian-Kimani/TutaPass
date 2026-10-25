@@ -102,7 +102,6 @@ For a reliable presentation:
 7. Return to the dashboard and show the **Misconception Map** and progress story.
 8. Open **AI Transparency Lab** and show the learner outcome before expanding the technical prompt details.
 
-The strongest line to say during the demo is:
 
 > “Most quiz apps tell learners whether they are right. TutaPass checks whether they understand why.”
 
